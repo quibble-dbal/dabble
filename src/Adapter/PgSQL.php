@@ -4,11 +4,14 @@
  * PostgreSQL-specific database abstraction layer.
  *
  * @package Dabble
+ * @subpackage Adapter
  * @author Marijn Ophorst <marijn@monomelodies.nl>
  * @copyright MonoMelodies 2008, 2009, 2010, 2011, 2012, 2015
  */
 
-namespace Dabble;
+namespace Dabble\Adapter;
+
+use Dabble\Adapter as DabbleAdapter;
 
 use monolyth\utils;
 use monolyth\Config;
@@ -19,7 +22,7 @@ use PDOStatement;
  * Database abstractions are usually called through DB::method or
  * DB::i[nstance]($name)->method.
  */
-class PgSQL extends Adapter
+class PgSQL extends DabbleAdapter
 {
     private $host, $username, $password, $database, $handle, $limit, $offset;
 

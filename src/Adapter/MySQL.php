@@ -4,11 +4,14 @@
  * Database abstraction layer for MySQL.
  *
  * @package Dabble
+ * @subpackage Adapter
  * @author Marijn Ophorst <marijn@monomelodies.nl>
  * @copyright MonoMelodies 2008, 2009, 2010, 2011, 2012, 2015
  */
 
-namespace Dabble;
+namespace Dabble\Adapter;
+
+use Dabble\Adapter as DabbleAdapter;
 
 use monolyth\utils;
 use monolyth\core;
@@ -19,7 +22,7 @@ use PDOStatement;
 use ErrorException;
 
 /** MySQL-abstraction class. */
-class MySQL extends Adapter
+class MySQL extends DabbleAdapter
 {
     public function fieldnames($resource)
     {
