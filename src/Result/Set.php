@@ -2,9 +2,10 @@
 
 /**
  * @package Dabble
+ * @subpackage Result
  */
 
-namespace Dabble;
+namespace Dabble\Result;
 
 use monolyth\utils;
 use ArrayAccess;
@@ -12,7 +13,7 @@ use Iterator;
 use Countable;
 use PDOStatement;
 
-class Resultset implements ArrayAccess, Iterator, Countable
+class Set implements ArrayAccess, Iterator, Countable
 {
     private $resource = null,
             $elements = 0,
