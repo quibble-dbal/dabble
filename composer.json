@@ -1,0 +1,21 @@
+{
+    "name": "monomelodies/dabble",
+    "description": "PHP5 database abstraction layer",
+    "license": "MIT",
+    "keywords": ["php","database","abstraction"],
+    "authors": [
+        {
+            "name": "Marijn Ophorst",
+            "email": "marijn@monomelodies.nl"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "4.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dabble\\": "src"
+        }
+    }
+}
