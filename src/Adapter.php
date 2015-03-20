@@ -5,7 +5,7 @@
  *
  * @package Dabble
  * @author Marijn Ophorst <marijn@monomelodies.nl>
- * @copyright MonoMelodies 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014
+ * @copyright MonoMelodies 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
  */
 
 namespace Dabble;
@@ -16,9 +16,8 @@ use Exception;
 use PDOStatement;
 use ArrayObject;
 use monolyth;
-use monolyth\Logger_Access;
 
-abstract class Adapter
+abstract class Adapter extends PDO
 {
     /**
      * Constants for aiding in interval statements.
@@ -33,39 +32,32 @@ abstract class Adapter
     const SECOND = 7;
     /** }}} */
 
-    use Logger_Access;
-
-    protected $cache = [];
-    protected $querytime = 0;
-    protected $prepared = [];
     protected $translevel = 0;
-    protected $index;
-    public $pdo = null;
     private $settings;
+    private $connected = false;
 
-    public function __construct($dsn, $user = null, $pass = null,
-        array $options = [])
+    public function __construct($d, $u = null, $p = null, array $o = [])
     {
-        $this->settings = compact('dsn', 'user', 'pass', 'options');
+        $this->settings = compact('d', 'u', 'p', 'o');
     }
 
     protected function connect()
     {
-        if (!is_null($this->pdo)) {
+        if ($this->connected) {
             return;
         }
         try {
             extract($this->settings);
-            $this->pdo = new PDO($dsn, $user, $pass, $options);
+            parent::__construct($d, $u, $p, $o);
+            $this->connected = true;
         } catch (PDOException $e) {
-            throw new ConnectionFailed_Exception($e->getMessage());
+            throw new Adapter\ConnectionFailedException($e->getMessage());
         }
-        self::logger()->log('Initialised database connection');
     }
 
     public function reconnect()
     {
-        $this->pdo = null;
+        $this->connected = false;
         $this->connect();
     }
 
@@ -90,62 +82,93 @@ abstract class Adapter
         return ['total' => $this->cache, 'time' => $this->querytime];
     }
 
+    /**
+     * Expose all PDO's original methods, optionally with additional
+     * Dabble-specific functionality.
+     *
+     * {{{
+     */
     public function beginTransaction()
     {
+        $this->connect();
         if (!$this->translevel++) {
-            $this->connect();
-            return $this->pdo->beginTransaction();
+            return parent::beginTransaction();
         }
     }
 
     public function commit()
     {
+        $this->connect();
         if ($this->translevel-- == 1) {
-            $this->connect();
-            return $this->pdo->commit();
+            return parent::commit();
         }
+    }
+
+    public function errorCode()
+    {
+        $this->connect();
+        return parent::errorCode();
+    }
+
+    public function errorInfo()
+    {
+        $this->connect();
+        return parent::errorInfo();
+    }
+
+    public function exec($statement)
+    {
+        $this->connect();
+        return parent::exec($statement);
+    }
+
+    public function getAttribute($attribute)
+    {
+        $this->connect();
+        return parent::getAttribute($attribute);
+    }
+
+    public function inTransaction()
+    {
+        return $this->translavel;
+    }
+
+    public function lastInsertId($name = null)
+    {
+        $this->connect();
+        return parent::lastInsertId($name);
+    }
+
+    public function prepare($statement, array $driver_options = [])
+    {
+        $this->connect();
+        return parent::prepare($statement, $driver_options);
+    }
+
+    public function query($statement)
+    {
+        $this->connect();
+        return parent::query($statement);
+    }
+
+    public function quote($string, $parameter_type = PDO::PARAM_STR)
+    {
+        $this->connect();
+        return parent::quote($string, $parameter_type);
     }
 
     public function rollback()
     {
+        $this->connect();
         if ($this->translevel-- == 1) {
-            $this->connect();
-            return $this->pdo->rollback();
+            return parent::rollback();
         }
     }
 
-    /**
-     * A 'bindable' version of PDO::query.
-     *
-     * @param string $sql The SQL to execute.
-     * @param array $bind Optional values to bind.
-     * @return PDOStatement A PDO result statement.
-     * @throw NoResults_Exception if no rows were found.
-     */
-    public function query($sql, array $bind = [])
+    public function setAttribute($attribute, $value)
     {
-        static $statements = [];
-        if (!isset($this->index)) {
-            $this->index = spl_object_hash($this);
-        }
-        $i = $this->index;
-        $start = microtime(true);
-        if ($bind) {
-            if (!isset($statements[$i][$sql])) {
-                $statements[$sql][$i] = $this->prepare($sql);
-            }
-            $statements[$sql][$i]->execute($bind);
-            $q = $statements[$sql][$i]->fetchAll(PDO::FETCH_ASSOC);
-            $sql = $statements[$sql][$i]->queryString;
-        } else {
-            $this->connect();
-            $q = $this->pdo->query($sql);
-        }
-        self::logger()->log($sql, $start);
-        if (!($q && count($q))) {
-            throw new NoResults_Exception($sql, $bind, 'No results.');
-        }
-        return $q;
+        $this->connect();
+        return parent::setAttribute($attribute, $value);
     }
 
     public function flush()
@@ -211,17 +234,9 @@ abstract class Adapter
      * @return mixed A scalar containing the result, or null.
      * @throw NoResults_Exception when no rows were found.
      */
-    public function field($table, $field, $where = null, $options = null)
+    public function column($table, $field, $where = null, $options = null)
     {
-        $this->connect();
-        $options['limit'] = 1;
-        if (!isset($options['offset'])) {
-            $options['offset'] = 0;
-        }
-        return $this->_get(
-            [$table, $field, $where, $options],
-            'fetchColumn'
-        );
+        return array_shift($this->fetch($table, $field, $where, $options));
     }
 
     /**
@@ -234,85 +249,17 @@ abstract class Adapter
      * @return array An array containing the result.
      * @throw NoResults_Exception when no rows were found.
      */
-    public function row($table, $fields, $where = null, $options = [])
+    public function fetch($table, $fields, $where = null, $options = [])
     {
         $this->connect();
         $options['limit'] = 1;
         if (!isset($options['offset'])) {
             $options['offset'] = 0;
         }
-        return $this->_get(
-            [$table, $fields, $where, $options],
-            'fetch'
-        );
-    }
-
-    /**
-     * Retrieve a resultset from the database.
-     *
-     * @param string $table The table(s) to query.
-     * @param string|array $fields The field(s) (column(s)) to query.
-     * @param array $where An SQL where-array.
-     * @param array $options Array of options.
-     * @return array An array of results.
-     * @throw NoResults_Exception when no rows were found.
-     */
-    public function rows($table, $fields, $where = null, $options = [])
-    {
-        $this->connect();
-        return $this->_get(
-            [$table, $fields, $where, $options],
-            'fetchAll'
-        );
-    }
-
-    /**
-     * Retrieve a resultset from the database, and load it in the supplied
-     * models.
-     *
-     * @param mixed $model A Model or classname.
-     * @param string $table The table(s) to query.
-     * @param string|array $fields The field(s) (column(s)) to query.
-     * @param array $where An SQL where-array.
-     * @param array $options Array of options.
-     * @return array An array of Models.
-     * @throw NoResults_Exception when no rows were found.
-     */
-    public function models($model, $table, $fields, array $where = [],
-        array $options = []
-    ) {
-        $this->connect();
-        $rows = $this->rows($table, $fields, $where, $options);
-        $model = is_string($model) ? new $model : $model;
-        $return = [];
-        foreach ($rows as $row) {
-            $m = clone $model;
-            $return[] = $m->load($row);
+        $result = $this->select($table, $fields, $where, $options);
+        foreach ($result() as $row) {
+            return $row;
         }
-        return $return;
-    }
-
-    /**
-     * Identical to Adapter::models, but for a single row.
-     *
-     * @param mixed $model A Model or classname.
-     * @param string $table The table(s) to query.
-     * @param string|array $fields The field(s) (column(s)) to query.
-     * @param array $where An SQL where-array.
-     * @param array $options Array of options.
-     * @return monolyth\core\Model A resulting Model.
-     * @throw NoResults_Exception when no rows were found.
-     */
-    public function model($model, $table, $fields, array $where = [],
-        array $options = []
-    ) {
-        return array_shift($this->models(
-            $model,
-            $table,
-            $fields,
-            $where,
-            $options
-        ));
     }
 
     /**
@@ -395,12 +342,14 @@ abstract class Adapter
      * Generate a select statement.
      *
      * @param string $table The table(s) to query.
-     * @param string $field The field (column) to query.
-     * @param array $where The where-clause.
-     * @param array $options The options (limit, offset etc.).
-     * @return string A string of SQL.
+     * @param mixed $fields The field (column) to query.
+     * @param mixed $where The where-clause.
+     * @param mixed $options The options (limit, offset etc.).
+     * @return Dabble\Result A Dabble result set.
+     * @throw Dabble\Query\SelectException when no rows found.
+     * @throw Dabble\Exception if the query failed miserably.
      */
-    public function select($table, $fields, $where, $options)
+    public function select($table, $fields, $where = [], $options = [])
     {
         $bind = [];
         if (!is_array($fields)) {
@@ -422,17 +371,30 @@ abstract class Adapter
         }
         if (!isset($this->prepared[$sql])) {
             $this->connect();
-            $this->prepared[$sql] = $this->pdo->prepare($sql);
+            $this->prepared[$sql] = $this->prepare($sql);
         }
         try {
-            if (!$this->prepared[$sql]->execute($bind)) {
+            $stmt = $this->prepared[$sql];
+            if (!$stmt->execute($bind)) {
                 throw new namespace\Exception($this->error(
                     "Couldn't call execute on prepared statement: $sql",
                     $bind
                 ));
             }
-            $this->cache[$key] = $this->prepared[$sql];
-            return $this->prepared[$sql];
+            //$this->cache[$key] = $stmt;
+            if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
+                throw new Query\SelectException;
+            }
+            return function () use ($stmt, &$first) {
+                if ($first) {
+                    $yield = $first;
+                    $first = false;
+                    yield $yield;
+                }
+                while (false !== $row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    yield $row;
+                }
+            };
         } catch (PDOException $e) {
             throw new namespace\Exception(
                 $this->error(
