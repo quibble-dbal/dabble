@@ -24,6 +24,11 @@ use ErrorException;
 /** MySQL-abstraction class. */
 class Mysql extends DabbleAdapter
 {
+    public function __construct($d, $n = null, $p = null, array $o = [])
+    {
+        return parent::__construct("mysql:$d", $n, $p, $o);
+    }
+
     public function fieldnames($resource)
     {
         $fields = [];
