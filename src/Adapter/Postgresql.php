@@ -22,7 +22,7 @@ use PDOStatement;
  * Database abstractions are usually called through DB::method or
  * DB::i[nstance]($name)->method.
  */
-class PgSQL extends DabbleAdapter
+class Postgresql extends DabbleAdapter
 {
     private $host, $username, $password, $database, $handle, $limit, $offset;
 

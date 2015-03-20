@@ -22,7 +22,7 @@ use PDOStatement;
 use ErrorException;
 
 /** MySQL-abstraction class. */
-class MySQL extends DabbleAdapter
+class Mysql extends DabbleAdapter
 {
     public function fieldnames($resource)
     {
