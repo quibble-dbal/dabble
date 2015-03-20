@@ -1,2 +1,2 @@
 # dabble
-PHP database abstraction library
+PHP5 database abstraction layer
