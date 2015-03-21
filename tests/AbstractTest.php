@@ -32,5 +32,14 @@ abstract class AbstractTest extends PHPUnit_Extensions_Database_TestCase
         $result = $db->column('test', 'id', [], ['order' => 'id']);
         $this->assertEquals(1, (int)$result);
     }
+
+    /**
+     * @expectedException Dabble\Query\SelectException
+     */
+    public function testNoResults()
+    {
+        $db = $this->getConnection()->getConnection();
+        $db->select('test', '*', ['id' => 12345]);
+    }
 }
 
