@@ -376,14 +376,14 @@ abstract class Adapter extends PDO
         try {
             $stmt = $this->prepared[$sql];
             if (!$stmt->execute($bind)) {
-                throw new namespace\Exception($this->error(
+                throw new Query\SqlException($this->error(
                     "Couldn't call execute on prepared statement: $sql",
                     $bind
                 ));
             }
             //$this->cache[$key] = $stmt;
             if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
-                throw new Query\SelectException;
+                throw new Query\SelectException($sql);
             }
             return function () use ($stmt, &$first) {
                 if ($first) {
@@ -396,7 +396,7 @@ abstract class Adapter extends PDO
                 }
             };
         } catch (PDOException $e) {
-            throw new namespace\Exception(
+            throw new Query\SqlException(
                 $this->error(
                     "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $bind
