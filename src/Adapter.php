@@ -214,7 +214,6 @@ abstract class Adapter extends PDO
             $key = ++$counter;
         }
         call_user_func_array([$statement, 'setFetchMode'], $args);
-        self::logger()->log($statement->queryString, $start);
         if (false !== ($result = $statement->$fn())
             and $result !== []
         ) {
@@ -297,7 +296,7 @@ abstract class Adapter extends PDO
         );
         if (!isset($this->prepared[$sql])) {
             $this->connect();
-            $this->prepared[$sql] = $this->pdo->prepare($sql);
+            $this->prepared[$sql] = $this->prepare($sql);
         }
         if (!$this->prepared[$sql]->execute($bind)) {
         }
@@ -347,7 +346,7 @@ abstract class Adapter extends PDO
      * @param mixed $options The options (limit, offset etc.).
      * @return Dabble\Result A Dabble result set.
      * @throw Dabble\Query\SelectException when no rows found.
-     * @throw Dabble\Query\SqlException if the query failed miserably.
+     * @throw Dabble\Query\SqlException on error.
      */
     public function select($table, $fields, $where = [], $options = [])
     {
@@ -408,6 +407,7 @@ abstract class Adapter extends PDO
      * @param array $fields Array of Field => value pairs to insert.
      * @return mixed The last inserted serial, or 0 or true if none found.
      * @throw Dabble\Query\InsertException if no rows were inserted.
+     * @throw Dabble\Query\SqlException on error.
      */
     public function insert($table, array $fields)
     {
@@ -419,6 +419,11 @@ abstract class Adapter extends PDO
             }
             $use[$name] = $field;
         }
+        if (!$use) {
+            throw new Query\InsertException(
+                "No fields to bind; did you pass only NULL values?"
+            );
+        }
         $fields = $use;
         $sql = sprintf(
             "INSERT INTO %s (%s) VALUES (%s)",
@@ -426,14 +431,12 @@ abstract class Adapter extends PDO
             str_replace("'", '', implode(', ', array_keys($fields))),
             implode(', ', $this->values($fields, $bind))
         );
-        $start = microtime(true);
         $this->connect();
-        $statement = $this->pdo->prepare($sql);
         try {
+            $statement = $this->prepare($sql);
             $statement->execute($bind);
-            self::logger()->log($sql, $start);
         } catch (PDOException $e) {
-            throw new InsertNone_Exception(
+            throw new Query\SqlException(
                 $this->error(
                     "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $bind
@@ -445,8 +448,9 @@ abstract class Adapter extends PDO
         if (!($affectedRows = $statement->rowCount() and $affectedRows)) {
             $info = $statement->errorInfo();
             $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
-            throw new InsertNone_Exception($this->error($msg, $bind));
+            throw new Query\InsertException($this->error($msg, $bind));
         }
+        return $affectedRows;
     }
     
     /**
@@ -457,6 +461,7 @@ abstract class Adapter extends PDO
      * @param array $where Array of where statements to limit updates.
      * @return integer The number of affected (updated) rows.
      * @throw Dabble\Query\UpdateException if no rows were updated.
+     * @throw Dabble\Query\SqlException on error.
      */
     public function update($table, array $fields, $where, $options = null)
     {
@@ -488,11 +493,10 @@ abstract class Adapter extends PDO
         );
         try {
             $this->connect();
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->prepare($sql);
             $statement->execute($bind);
-            self::logger()->log($sql, $start);
         } catch (PDOException $e) {
-            throw new Exception(
+            throw new Query\SqlException(
                 $this->error(
                     "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $bind
@@ -504,25 +508,9 @@ abstract class Adapter extends PDO
         if (!($affectedRows = $statement->rowCount() and $affectedRows)) {
             $info = $statement->errorInfo();
             $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
-            throw new UpdateNone_Exception($this->error($msg, $bind), 1);
+            throw new Query\UpdateException($this->error($msg, $bind), 1);
         }
         return $affectedRows;
-    }
-
-    public function upsert($table, array $fields)
-    {
-        $this->connect();
-        try {
-            $this->delete($table, $fields);
-        } catch (DeleteNone_Exception $e) {
-        }
-        try {
-            return $this->insert($table, $fields);
-        } catch (InsertNone_Exception $e) {
-            $info = $statement->errorInfo();
-            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
-            throw new UpsertNone_Exception($msg);
-        }
     }
 
     /**
@@ -532,30 +520,23 @@ abstract class Adapter extends PDO
      * @array $where Array of where statements to limit deletes.
      * @return int The number of deleted rows.
      * @throw Dabble\Query\DeleteException if no rows were deleted.
+     * @throw Dabble\Query\SqlException on error.
      */
     public function delete($table, array $where)
     {
+        $bind = [];
+        $sql = sprintf(
+            "DELETE FROM %s WHERE %s",
+            $table,
+            $this->where($where, $bind)
+        );
+        $start = microtime(true);
+        $this->connect();
         try {
-            $bind = [];
-            $sql = sprintf(
-                "DELETE FROM %s WHERE %s",
-                $table,
-                $this->where($where, $bind)
-            );
-            $start = microtime(true);
-            $this->connect();
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->prepare($sql);
             $statement->execute($bind);
-            self::logger()->log($sql, $start);
-            $affected = $statement->rowCount();
-            if (!$affected) {
-                $info = $statement->errorInfo();
-                $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
-                throw new DeleteNone_Exception($this->error($msg, $bind));
-            }
-            return $affected;
         } catch (PDOException $e) {
-            throw new Exception(
+            throw new Query\SqlException(
                 $this->error(
                     "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $bind
@@ -564,21 +545,12 @@ abstract class Adapter extends PDO
                 $e
             );
         }
-    }
-
-    public function truncate($table)
-    {
-        $this->connect();
-        if (!($result = $this->exec(sprintf(
-            "TRUNCATE TABLE %s",
-            $table
-        )))) {
-            return false;
+        if (!($affectedRows = $statement->rowCount() and $affectedRows)) {
+            $info = $statement->errorInfo();
+            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
+            throw new Query\DeleteException($this->error($msg, $bind));
         }
-        if (method_exists($this, 'affectedRows')) {
-            return $this->affectedRows($result);
-        }
-        return true;
+        return $affectedRows;
     }
 
     public function numRowsTotal(PDOStatement $result, &$bind)
