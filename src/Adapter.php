@@ -12,10 +12,9 @@ namespace Dabble;
 
 use PDO;
 use PDOException;
-use Exception;
 use PDOStatement;
+use Exception;
 use ArrayObject;
-use monolyth;
 
 abstract class Adapter extends PDO
 {
@@ -33,12 +32,13 @@ abstract class Adapter extends PDO
     /** }}} */
 
     protected $translevel = 0;
-    private $settings;
+    private $connectionSettings = [];
     private $connected = false;
 
     public function __construct($d, $u = null, $p = null, array $o = [])
     {
-        $this->settings = compact('d', 'u', 'p', 'o');
+        $o[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
+        $this->connectionSettings = compact('d', 'u', 'p', 'o');
     }
 
     protected function connect()
@@ -47,7 +47,7 @@ abstract class Adapter extends PDO
             return;
         }
         try {
-            extract($this->settings);
+            extract($this->connectionSettings);
             parent::__construct($d, $u, $p, $o);
             $this->connected = true;
         } catch (PDOException $e) {
@@ -413,7 +413,7 @@ abstract class Adapter extends PDO
      * @param string $table The table to insert into.
      * @param array $fields Array of Field => value pairs to insert.
      * @return mixed The last inserted serial, or 0 or true if none found.
-     * @throw monolyth\adapter\sql\InsertNone_Exception if no rows were inserted.
+     * @throw Dabble\Query\InsertException if no rows were inserted.
      */
     public function insert($table, array $fields)
     {
@@ -462,7 +462,7 @@ abstract class Adapter extends PDO
      * @param array $fields Array Field => value pairs to update.
      * @param array $where Array of where statements to limit updates.
      * @return integer The number of affected (updated) rows.
-     * @throw UpdateNone_Exception if no rows were updated.
+     * @throw Dabble\Query\UpdateException if no rows were updated.
      */
     public function update($table, array $fields, $where, $options = null)
     {
@@ -537,7 +537,7 @@ abstract class Adapter extends PDO
      * @param string $table The table to delete from.
      * @array $where Array of where statements to limit deletes.
      * @return int The number of deleted rows.
-     * @throw DeleteNone_Exception if no rows were deleted.
+     * @throw Dabble\Query\DeleteException if no rows were deleted.
      */
     public function delete($table, array $where)
     {
@@ -828,12 +828,6 @@ abstract class Adapter extends PDO
             );
         }
         return implode(' ', $myoptions);
-    }
-
-    public function __call($fn, $args)
-    {
-        $this->connect();
-        return call_user_func_array([$this->pdo, $fn], $args);
     }
 }
 
