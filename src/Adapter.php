@@ -370,7 +370,8 @@ abstract class Adapter extends PDO
      * @param array $where An SQL where-array.
      * @param array $options Array of options.
      * @return array An array containing the result.
-     * @throw NoResults_Exception when no rows were found.
+     * @throw Dabble\Query\SelectException when no row was found.
+     * @throw Dabble\Query\SqlException on error.
      */
     public function fetch($table, $fields, $where = null, $options = [])
     {
@@ -393,11 +394,25 @@ abstract class Adapter extends PDO
      * @param array $where An SQL where-array.
      * @param array $options Array of options.
      * @return mixed A scalar containing the result, or null.
-     * @throw NoResults_Exception when no rows were found.
+     * @throw Dabble\Query\SelectException when no row was found.
+     * @throw Dabble\Query\SqlException on error.
      */
     public function column($table, $field, $where = null, $options = null)
     {
         return array_shift($this->fetch($table, $field, $where, $options));
+    }
+
+    /**
+     * Retrieve a count from a table.
+     *
+     * @param string $table The table(s) to query.
+     * @param array $where An SQL where-array.
+     * @return integer The number of matched rows.
+     * @throw Dabble\Query\SqlException on error.
+     */
+    public function count($table, $where = null)
+    {
+        return $this->column($table, 'COUNT(*)', $where);
     }
 
     /**
