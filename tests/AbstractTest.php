@@ -1,7 +1,5 @@
 <?php
 
-use Dabble\Adapter\Mysql;
-
 abstract class AbstractTest extends PHPUnit_Extensions_Database_TestCase
 {
     public function getDataSet()
