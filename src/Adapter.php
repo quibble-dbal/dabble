@@ -224,44 +224,6 @@ abstract class Adapter extends PDO
     }
 
     /**
-     * Retrieve a single value from a single column.
-     *
-     * @param string $table The table(s) to query.
-     * @param string $field The field (column) to query.
-     * @param array $where An SQL where-array.
-     * @param array $options Array of options.
-     * @return mixed A scalar containing the result, or null.
-     * @throw NoResults_Exception when no rows were found.
-     */
-    public function column($table, $field, $where = null, $options = null)
-    {
-        return array_shift($this->fetch($table, $field, $where, $options));
-    }
-
-    /**
-     * Retrieve a single row from the database.
-     *
-     * @param string $table The table(s) to query.
-     * @param string|array $fields The field(s) (column(s)) to query.
-     * @param array $where An SQL where-array.
-     * @param array $options Array of options.
-     * @return array An array containing the result.
-     * @throw NoResults_Exception when no rows were found.
-     */
-    public function fetch($table, $fields, $where = null, $options = [])
-    {
-        $this->connect();
-        $options['limit'] = 1;
-        if (!isset($options['offset'])) {
-            $options['offset'] = 0;
-        }
-        $result = $this->select($table, $fields, $where, $options);
-        foreach ($result() as $row) {
-            return $row;
-        }
-    }
-
-    /**
      * Retrieve a paginated resultset from the database.
      *
      * @param string $table The table(s) to query.
@@ -398,6 +360,44 @@ abstract class Adapter extends PDO
                 yield $row;
             }
         };
+    }
+
+    /**
+     * Retrieve a single row from the database.
+     *
+     * @param string $table The table(s) to query.
+     * @param string|array $fields The field(s) (column(s)) to query.
+     * @param array $where An SQL where-array.
+     * @param array $options Array of options.
+     * @return array An array containing the result.
+     * @throw NoResults_Exception when no rows were found.
+     */
+    public function fetch($table, $fields, $where = null, $options = [])
+    {
+        $this->connect();
+        $options['limit'] = 1;
+        if (!isset($options['offset'])) {
+            $options['offset'] = 0;
+        }
+        $result = $this->select($table, $fields, $where, $options);
+        foreach ($result() as $row) {
+            return $row;
+        }
+    }
+
+    /**
+     * Retrieve a single value from a single column.
+     *
+     * @param string $table The table(s) to query.
+     * @param string $field The field (column) to query.
+     * @param array $where An SQL where-array.
+     * @param array $options Array of options.
+     * @return mixed A scalar containing the result, or null.
+     * @throw NoResults_Exception when no rows were found.
+     */
+    public function column($table, $field, $where = null, $options = null)
+    {
+        return array_shift($this->fetch($table, $field, $where, $options));
     }
 
     /**
