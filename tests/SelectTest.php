@@ -36,5 +36,12 @@ trait SelectTest
         $db = $this->getConnection()->getConnection();
         $db->select('test', '*', ['id' => 12345]);
     }
+
+    public function testCount()
+    {
+        $db = $this->getConnection()->getConnection();
+        $cnt = $db->count('test');
+        $this->assertEquals(3, (int)$cnt);
+    }
 }
 
