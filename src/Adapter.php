@@ -347,7 +347,7 @@ abstract class Adapter extends PDO
      * @param mixed $options The options (limit, offset etc.).
      * @return Dabble\Result A Dabble result set.
      * @throw Dabble\Query\SelectException when no rows found.
-     * @throw Dabble\Exception if the query failed miserably.
+     * @throw Dabble\Query\SqlException if the query failed miserably.
      */
     public function select($table, $fields, $where = [], $options = [])
     {
@@ -375,26 +375,7 @@ abstract class Adapter extends PDO
         }
         try {
             $stmt = $this->prepared[$sql];
-            if (!$stmt->execute($bind)) {
-                throw new Query\SqlException($this->error(
-                    "Couldn't call execute on prepared statement: $sql",
-                    $bind
-                ));
-            }
-            //$this->cache[$key] = $stmt;
-            if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
-                throw new Query\SelectException($sql);
-            }
-            return function () use ($stmt, &$first) {
-                if ($first) {
-                    $yield = $first;
-                    $first = false;
-                    yield $yield;
-                }
-                while (false !== $row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    yield $row;
-                }
-            };
+            $stmt->execute($bind);
         } catch (PDOException $e) {
             throw new Query\SqlException(
                 $this->error(
@@ -405,6 +386,19 @@ abstract class Adapter extends PDO
                 $e
             );
         }
+        if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
+            throw new Query\SelectException($sql);
+        }
+        return function () use ($stmt, &$first) {
+            if ($first) {
+                $yield = $first;
+                $first = false;
+                yield $yield;
+            }
+            while (false !== $row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                yield $row;
+            }
+        };
     }
 
     /**
