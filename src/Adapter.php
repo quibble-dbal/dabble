@@ -41,6 +41,14 @@ abstract class Adapter extends PDO
         $this->connectionSettings = compact('d', 'u', 'p', 'o');
     }
 
+    /**
+     * Opens a just-in-time database connection associated with this adapter.
+     * This allows you to define as many databases as you want in a central file
+     * without necessarily worrying about overhead (e.g. lots of related sites).
+     *
+     * @throws Dabble\Adapter\ConnectionFailedException if the database is
+     *                                                  unavailable.
+     */
     protected function connect()
     {
         if ($this->connected) {
@@ -63,6 +71,10 @@ abstract class Adapter extends PDO
 
     /**
      * Internal helper to correctly formate error messages.
+     *
+     * @param string $msg The original error message.
+     * @param array $bind Array of bound values.
+     * @return string Formatted error message.
      */
     protected function error($msg, array $bind = [])
     {
@@ -75,11 +87,6 @@ abstract class Adapter extends PDO
             $msg .= "$key => $value\n";
         }
         return $msg;
-    }
-
-    public function stats()
-    {
-        return ['total' => $this->cache, 'time' => $this->querytime];
     }
 
     /**
@@ -170,57 +177,14 @@ abstract class Adapter extends PDO
         $this->connect();
         return parent::setAttribute($attribute, $value);
     }
+    /**
+     * }}}
+     */
 
     public function flush()
     {
         $this->connect();
         $this->cache = [];
-    }
-
-    private function _get(array $params, $function)
-    {
-        static $counter = 0;
-        list($table, $field, $where, $options) = $params;
-        switch ($function) {
-            case 'fetchColumn':
-                $args = [0];
-                $fn = $function;
-                break;
-            case 'fetchObject':
-                $fn = 'fetch';
-            case 'fetchObjects':
-                $o = array_pop(func_get_args());
-                if (is_object($o)) {
-                    $args = [self::FETCH_INTO, $o];
-                } else {
-                    $args = [self::FETCH_CLASS, $o];
-                }
-                $fn = isset($fn) ? $fn : 'fetchAll';
-                break;
-            default:
-                $args = [PDO::FETCH_ASSOC];
-                $fn = $function;
-        }
-        $start = microtime(true);
-        $statement = $this->select($table, $field, $where, $options);
-        $dummy = [];
-        try {
-            $key = spl_object_hash($statement).
-                serialize([$field, $where, $options]);
-            if (isset($this->cache[$key])) {
-                return $this->cache[$key];
-            }
-        } catch (Exception $e) {
-            $key = ++$counter;
-        }
-        call_user_func_array([$statement, 'setFetchMode'], $args);
-        if (false !== ($result = $statement->$fn())
-            and $result !== []
-        ) {
-            $this->cache[$key] = $result;
-            return $result;
-        }
-        throw new NoResults_Exception($statement->queryString, $where);
     }
 
     /**
@@ -283,7 +247,7 @@ abstract class Adapter extends PDO
      * @param array $where An SQL where-array.
      * @param array $options Array of options.
      * @return mixed An array or resultsets, or null.
-     * @throw NoResults_Exception when no rows were found.
+     * @throws NoResults_Exception when no rows were found.
      */
     public function indexed($table, $fields, array $where = [],
         array $options = []
@@ -300,15 +264,15 @@ abstract class Adapter extends PDO
     }
 
     /**
-     * Generate a select statement.
+     * Select rows from a table.
      *
      * @param string $table The table(s) to query.
      * @param mixed $fields The field (column) to query.
      * @param mixed $where The where-clause.
      * @param mixed $options The options (limit, offset etc.).
-     * @return Dabble\Result A Dabble result set.
-     * @throw Dabble\Query\SelectException when no rows found.
-     * @throw Dabble\Query\SqlException on error.
+     * @return function A lambda allowing you to access the found rows.
+     * @throws Dabble\Query\SelectException when no rows found.
+     * @throws Dabble\Query\SqlException on error.
      */
     public function select($table, $fields, $where = [], $options = [])
     {
@@ -370,8 +334,8 @@ abstract class Adapter extends PDO
      * @param array $where An SQL where-array.
      * @param array $options Array of options.
      * @return array An array containing the result.
-     * @throw Dabble\Query\SelectException when no row was found.
-     * @throw Dabble\Query\SqlException on error.
+     * @throws Dabble\Query\SelectException when no row was found.
+     * @throws Dabble\Query\SqlException on error.
      */
     public function fetch($table, $fields, $where = null, $options = [])
     {
@@ -394,8 +358,8 @@ abstract class Adapter extends PDO
      * @param array $where An SQL where-array.
      * @param array $options Array of options.
      * @return mixed A scalar containing the result, or null.
-     * @throw Dabble\Query\SelectException when no row was found.
-     * @throw Dabble\Query\SqlException on error.
+     * @throws Dabble\Query\SelectException when no row was found.
+     * @throws Dabble\Query\SqlException on error.
      */
     public function column($table, $field, $where = null, $options = null)
     {
@@ -408,7 +372,7 @@ abstract class Adapter extends PDO
      * @param string $table The table(s) to query.
      * @param array $where An SQL where-array.
      * @return integer The number of matched rows.
-     * @throw Dabble\Query\SqlException on error.
+     * @throws Dabble\Query\SqlException on error.
      */
     public function count($table, $where = null)
     {
@@ -421,8 +385,8 @@ abstract class Adapter extends PDO
      * @param string $table The table to insert into.
      * @param array $fields Array of Field => value pairs to insert.
      * @return mixed The last inserted serial, or 0 or true if none found.
-     * @throw Dabble\Query\InsertException if no rows were inserted.
-     * @throw Dabble\Query\SqlException on error.
+     * @throws Dabble\Query\InsertException if no rows were inserted.
+     * @throws Dabble\Query\SqlException on error.
      */
     public function insert($table, array $fields)
     {
@@ -475,8 +439,8 @@ abstract class Adapter extends PDO
      * @param array $fields Array Field => value pairs to update.
      * @param array $where Array of where statements to limit updates.
      * @return integer The number of affected (updated) rows.
-     * @throw Dabble\Query\UpdateException if no rows were updated.
-     * @throw Dabble\Query\SqlException on error.
+     * @throws Dabble\Query\UpdateException if no rows were updated.
+     * @throws Dabble\Query\SqlException on error.
      */
     public function update($table, array $fields, $where, $options = null)
     {
@@ -532,10 +496,10 @@ abstract class Adapter extends PDO
      * Delete a row from the database.
      *
      * @param string $table The table to delete from.
-     * @array $where Array of where statements to limit deletes.
+     * @param array $where Array of where statements to limit deletes.
      * @return int The number of deleted rows.
-     * @throw Dabble\Query\DeleteException if no rows were deleted.
-     * @throw Dabble\Query\SqlException on error.
+     * @throws Dabble\Query\DeleteException if no rows were deleted.
+     * @throws Dabble\Query\SqlException on error.
      */
     public function delete($table, array $where)
     {
