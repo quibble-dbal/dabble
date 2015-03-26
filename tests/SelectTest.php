@@ -43,5 +43,12 @@ trait SelectTest
         $cnt = $db->count('test');
         $this->assertEquals(3, (int)$cnt);
     }
+
+    public function testAll()
+    {
+        $db = $this->getConnection()->getConnection();
+        $rows = $db->fetchAll('test', '*');
+        $this->assertEquals(3, count($rows));
+    }
 }
 
