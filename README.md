@@ -10,7 +10,14 @@ Instantiate a Dabble database object using your credentials:
 
     $db = new Mysql($dsn, $user, $pass, $options);
 
-The database type (e.g. `mysql:` in the above example) is added by Dabble.
+The database type (e.g. `mysql:` in the above example) is added to the `$dsn`
+string by Dabble.
+
+The actual connection is opened in a just-in-time manner; hence, feel free to
+define as many Dabble adapters as you like (e.g. large sites connecting to
+various databases depending on the route). Connections aren't opened until the
+adapter is actually used. This allows you to define all your adapters in a
+central place.
 
 Dabble supports four 'main' types of queries: `select`, `insert`, `update` and
 `delete`. These have corresponding method names on the `Dabble\Adapter` object.
@@ -20,7 +27,7 @@ further arguments are arrays or key/value pairs.
 ## Select queries
     $result = $db->select('tablename', $fields, $where, $options);
 
-`select` returns a `Dabble\Result` object. Internally this is converted to:
+Internally this is converted to an SQL query used in a prepared statement:
 
     "SELECT $fields FROM 'tablename' WHERE $where $options"
 
@@ -40,6 +47,10 @@ Multi-row Dabble results are returned as a lambda implementing a `Generator`.
     }
 
 Returned rows are fetched using `PDO::FETCH_ASSOC`.
+
+Instead of `select`, you can also query using `fetchAll` with the same
+arguments. This returns an array with all results just as
+`PDOStatement::fetchAll` would.
 
 ### Single-row queries
 If you know beforehand you will only need a single row from a result set, use
