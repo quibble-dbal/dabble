@@ -264,6 +264,27 @@ abstract class Adapter extends PDO
     }
 
     /**
+     * Select all rows from a table, PDOStatement::fetchAll-style.
+     *
+     * @param string $table The table(s) to query.
+     * @param mixed $fields The field (column) to query.
+     * @param mixed $where The where-clause.
+     * @param mixed $options The options (limit, offset etc.).
+     * @return array Array containing all found rows.
+     * @throws Dabble\Query\SelectException when no rows found.
+     * @throws Dabble\Query\SqlException on error.
+     */
+    public function fetchAll($table, $fields, $where = [], $options = [])
+    {
+        $results = $this->select($table, $fields, $where, $options);
+        $return = [];
+        foreach ($results() as $row) {
+            $return[] = $row;
+        }
+        return $return;
+    }
+
+    /**
      * Select rows from a table.
      *
      * @param string $table The table(s) to query.
@@ -323,6 +344,7 @@ abstract class Adapter extends PDO
             while (false !== $row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 yield $row;
             }
+            return;
         };
     }
 
