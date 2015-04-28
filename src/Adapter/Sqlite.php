@@ -22,7 +22,12 @@ class Sqlite extends DabbleAdapter
         $password = null,
         array $options = []
     ) {
-        return parent::__construct("sqlite:$d", $n, $p, $o);
+        return parent::__construct(
+            "sqlite:$dsn",
+            $username,
+            $password,
+            $ooptions
+        );
     }
 
     public function value($value, &$bind)
