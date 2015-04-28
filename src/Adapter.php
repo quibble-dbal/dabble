@@ -161,6 +161,9 @@ abstract class Adapter extends PDO
     public function quote($string, $parameter_type = PDO::PARAM_STR)
     {
         $this->connect();
+        if (is_object($string) && $string instanceof Raw) {
+            return "$string";
+        }
         return parent::quote($string, $parameter_type);
     }
 
