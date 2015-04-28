@@ -26,7 +26,7 @@ class Sqlite extends DabbleAdapter
             "sqlite:$dsn",
             $username,
             $password,
-            $ooptions
+            $options
         );
     }
 
