@@ -16,8 +16,12 @@ use Dabble\Adapter as DabbleAdapter;
 /** SqLite-abstraction class. */
 class Sqlite extends DabbleAdapter
 {
-    public function __construct($d, $n = null, $p = null, array $o = [])
-    {
+    public function __construct(
+        $dsn,
+        $username = null,
+        $password = null,
+        array $options = []
+    ) {
         return parent::__construct("sqlite:$d", $n, $p, $o);
     }
 
@@ -31,7 +35,6 @@ class Sqlite extends DabbleAdapter
 
     public function interval($quantity, $amount)
     {
-        //and o_orderdate < date('1995-03-01', '+3 month')
         $what = null;
         switch ($quantity) {
             case self::SECOND: $what = 'second'; break;
