@@ -456,7 +456,6 @@ abstract class Adapter extends PDO
             $table,
             $this->where($where, $bind)
         );
-        $start = microtime(true);
         $this->connect();
         try {
             $statement = $this->prepare($sql);
