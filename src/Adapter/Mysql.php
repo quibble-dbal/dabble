@@ -13,14 +13,6 @@ namespace Dabble\Adapter;
 
 use Dabble\Adapter as DabbleAdapter;
 
-use monolyth\utils;
-use monolyth\core;
-use monolyth\adapter as base;
-use monolyth\Config;
-use PDOException;
-use PDOStatement;
-use ErrorException;
-
 /** MySQL-abstraction class. */
 class Mysql extends DabbleAdapter
 {
