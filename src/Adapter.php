@@ -547,7 +547,7 @@ abstract class Adapter extends PDO
                 $e
             );
         }
-        if (!($affectedRows = $statement->rowCount() and $affectedRows)) {
+        if (!(($affectedRows = $statement->rowCount()) && $affectedRows)) {
             $info = $statement->errorInfo();
             $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
             throw new Query\DeleteException($this->error($msg, $bind));
