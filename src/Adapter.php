@@ -486,7 +486,6 @@ abstract class Adapter extends PDO
                 $value = $key.' = '.$this->value($value, $bind);
             }
         }
-        $start = microtime(true);
         $sql = sprintf(
             "UPDATE %s SET %s WHERE %s %s",
             $table,
