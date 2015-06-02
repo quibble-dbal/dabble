@@ -699,22 +699,6 @@ abstract class Adapter extends PDO
         );      
     }
 
-    public function any($field, $value, &$bind)
-    {
-        if (!is_array($value)) {
-            $value = [$value];
-        }
-        // return (a = 1 or a = 2 or ...) as fallback
-    /*
-        $o = DB::load();
-        if (method_exists($o, 'any')) {
-            return $o->any($field, $value);
-        }
-
-        print 'bla';
-    */
-    }
-
     public function operator($value, $operator = '=')
     {
         if ($value === null) {
