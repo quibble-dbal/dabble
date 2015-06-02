@@ -13,7 +13,6 @@ namespace Dabble;
 use PDO;
 use PDOException;
 use PDOStatement;
-use Exception;
 use ArrayObject;
 
 abstract class Adapter extends PDO
