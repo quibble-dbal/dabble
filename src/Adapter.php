@@ -613,7 +613,7 @@ abstract class Adapter extends PDO
         if (!is_array($values)) {
             $values = [$values];
         }
-        $value = array_unique($values);
+        $values = array_unique($values);
         return sprintf(
             '%s %s (%s)',
             $key,
