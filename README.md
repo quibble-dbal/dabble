@@ -1,5 +1,8 @@
 # Dabble
-PHP5 database abstraction layer
+PHP5 database abstraction layer. Writing SQL by hand is fine craft, but often
+it's more convenient to juggle arrays, e.g. to dynamically add conditions. Using
+Dabble this is made easy, while still allowing you to write literal SQL where
+you need.
 
 ## Installation
 
