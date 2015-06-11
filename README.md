@@ -1,4 +1,4 @@
-# dabble
+# Dabble
 PHP5 database abstraction layer
 
 ## Installation
@@ -6,9 +6,14 @@ PHP5 database abstraction layer
 ## Basic querying
 Instantiate a Dabble database object using your credentials:
 
-    use Dabble\Adapter\Mysql;
+```php
+<?php
+    
+use Dabble\Adapter\Mysql;
 
-    $db = new Mysql($dsn, $user, $pass, $options);
+$db = new Mysql($dsn, $user, $pass, $options);
+
+```
 
 The database type (e.g. `mysql:` in the above example) is added to the `$dsn`
 string by Dabble.
@@ -25,11 +30,18 @@ They all follow a similar syntax where argument one is the table name, and
 further arguments are arrays or key/value pairs.
 
 ## Select queries
-    $result = $db->select('tablename', $fields, $where, $options);
+```php
+<?php
+
+$result = $db->select('tablename', $fields, $where, $options);
+
+```
 
 Internally this is converted to an SQL query used in a prepared statement:
 
-    "SELECT $fields FROM 'tablename' WHERE $where $options"
+```sql
+SELECT $fields FROM 'tablename' WHERE $where $options
+```
 
 The tablename is simply a string that is injected verbatim; the other arguments
 can be either strings (for 'raw' querying) or arrays or key/value pairs. For
@@ -42,9 +54,14 @@ thrown.
 ### Handling results
 Multi-row Dabble results are returned as a lambda implementing a `Generator`.
 
-    foreach ($result() as $row) {
-        echo $row['field'];
-    }
+```php
+<?php
+
+foreach ($result() as $row) {
+    echo $row['field'];
+}
+
+```
 
 Returned rows are fetched using `PDO::FETCH_ASSOC`.
 
@@ -56,7 +73,12 @@ arguments. This returns an array with all results just as
 If you know beforehand you will only need a single row from a result set, use
 `Dabble\Adapter::fetch` instead:
 
-    $row = $db->fetch('tablename', $fields, $where, $options);
+```php
+<?php
+
+$row = $db->fetch('tablename', $fields, $where, $options);
+
+```
 
 This will return a single array of key/value pairs, and automatically injects
 `LIMIT 1` into your query.
@@ -65,13 +87,23 @@ This will return a single array of key/value pairs, and automatically injects
 If you know beforehand you will only need a single column from a result set, use
 `Dabble\Adapter::column` instead:
 
-    $col = $db->column('tablename', $fields, $where, $options);
+```php
+<?php
+
+$col = $db->column('tablename', $fields, $where, $options);
+
+```
 
 Like `row`, this adds `LIMIT 1` to the query, and also drops all fields except
 the first prior to execution.
 
 ## Insert queries
-    $affectedRows = $db->insert('tablename', $columnValuePairs);
+```php
+<?php
+
+$affectedRows = $db->insert('tablename', $columnValuePairs);
+
+```
 
 `$columnValuePairs` can be either a string of literal SQL, or a hash where the
 keys are the column names to insert into, and the values are the values to
@@ -86,12 +118,22 @@ If no rows are affected (i.e., the insert failed) a
 Identical to insert queries, except a third parameter contains a 'where' clause.
 The third parameter is required to prevent accidents.
 
-    $affectedRows = $db->update('tablename', $columnValuePairs, $where);
+```php
+<?php
+
+$affectedRows = $db->update('tablename', $columnValuePairs, $where);
+
+```
 
 To force an update without a where-clause, simply do something like the
 following:
 
-    $db->update('tablename', $columnValuePairs, [1 => 1]); // WHERE 1 = '1'
+```php
+<?php
+
+$db->update('tablename', $columnValuePairs, [1 => 1]); // WHERE 1 = '1'
+
+```
 
 If no rows are affected (i.e., the update failed or no rows were matched or
 changed) a `Dabble\Query\UpdateException` is thrown.
@@ -99,7 +141,13 @@ changed) a `Dabble\Query\UpdateException` is thrown.
 ## Delete queries
 Identical to update queries, but without the second parameter:
 
-    $affectedRows = $db->delete('tablename', $where);
+```php
+<?php
+
+$affectedRows = $db->delete('tablename', $where);
+
+```
 
 If no rows are affected (i.e., the delete failed or no rows were matched) a
 `Dabble\Query\DeleteException` is thrown.
+
