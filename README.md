@@ -39,7 +39,7 @@ central place.
 Dabble supports four 'main' types of queries: `select`, `insert`, `update` and
 `delete`. These have corresponding method names on the `Dabble\Adapter` object.
 They all follow a similar syntax where argument one is the table name, and
-further arguments are arrays or key/value pairs.
+further arguments are arrays of key/value pairs.
 
 ## Select queries
 ```php
