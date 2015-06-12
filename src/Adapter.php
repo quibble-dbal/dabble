@@ -692,7 +692,7 @@ abstract class Adapter extends PDO
         }
         if (isset($options['LIMIT'])) {
             $myoptions[] = sprintf(
-                "LIMIT %s",
+                "LIMIT %d",
                 $options['LIMIT']
             );
         }
