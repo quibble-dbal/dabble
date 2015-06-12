@@ -6,7 +6,16 @@ you need.
 
 ## Installation
 
-## Basic querying
+### Using Composer (recommended)
+```bash
+composer install --save monomelodies/dabble
+```
+
+### Manual
+Download or clone the library. Register the `/path/to/dabble/src` for the
+namespace prefix `Dabble` in your autoloader.
+
+## Setting up a connection
 Instantiate a Dabble database object using your credentials:
 
 ```php
