@@ -2,3 +2,14 @@ site_name: Dabble
 site_url: http://dabble.monomelodies.nl/docs/
 repo_url: https://github.com/monomelodies/dabble
 
+pages:
+- Home:
+    - 'Quickstart': 'index.md'
+- Usage:
+    - 'The where array': 'usage/where.md'
+    - 'The options array': 'usage/options.md'
+    - 'Selecting': 'usage/select.md'
+    - 'Inserting': 'usage/insert.md'
+    - 'Updating': 'usage/update.md'
+    - 'Deleting': 'usage/delete.md'
+
