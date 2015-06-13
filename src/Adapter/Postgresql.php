@@ -18,9 +18,18 @@ use Dabble\Adapter as DabbleAdapter;
  */
 class Postgresql extends DabbleAdapter
 {
-    public function __construct($d, $n = null, $p = null, array $o = [])
-    {
-        return parent::__construct("pgsql:$d", $n, $p, $o);
+    public function __construct(
+        $dsn,
+        $username = null,
+        $password = null,
+        array $options = []
+    ) {
+        return parent::__construct(
+            "pgsql:$dsn",
+            $username,
+            $password,
+            $options
+        );
     }
 
     public function any($key, $values, &$bind)
