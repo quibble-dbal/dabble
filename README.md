@@ -4,6 +4,9 @@ it's more convenient to juggle arrays, e.g. to dynamically add conditions. Using
 Dabble this is made easy, while still allowing you to write literal SQL where
 you need.
 
+Dabble is an _extension_ of PHP's native `PDO` class, so should work with any
+existing code seamlessly.
+
 ## Installation
 
 ### Using Composer (recommended)
@@ -36,6 +39,7 @@ various databases depending on the route). Connections aren't opened until the
 adapter is actually used. This allows you to define all your adapters in a
 central place.
 
+## Querying
 Dabble supports four 'main' types of queries: [`select`](usage/select.md),
 [`insert`](usage/insert.md), [`update`](usage/update.md) and
 [`delete`](usage/delete.md). These have corresponding method names on the
@@ -43,4 +47,11 @@ Dabble supports four 'main' types of queries: [`select`](usage/select.md),
 the table name, and further arguments are arrays of key/value pairs.
 
 Of course, regular PDO methods are also available for fine-grained tuning.
+
+## FAQ
+
+- #### Can I use Dabble in combination with [insert ORM library]? ####
+
+    Sure - as long as your library uses `PDO`. Dabble is simply an _extension_
+    to `PDO`, so you should be good to go.
 
