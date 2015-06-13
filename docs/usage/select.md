@@ -94,3 +94,23 @@ type constructs, and allows you to structure your code logically using
 > Note that `PDO::query` and `PDOStatement::fetch` are untouched and will not
 > throw these exceptions.
 
+## `Dabble\Query\Select`
+While the various selecting methods exist on the Adapter object for convenience
+_and_ to throw exceptions, you can also manually instantiate a `Select` object.
+This is handy e.g. when building subqueries:
+
+```php
+<?php
+
+$select = new Dabble\Query\Select(
+    $adapter,
+    $table,
+    $array_of_fields,
+    new Dabble\Query\Where($where),
+    new Dabble\Query\Options($options)
+);
+echo $select->__toString(); // e.g. SELECT foo FROM bar WHERE baz = '1' LIMIT 1
+$select->execute();
+
+```
+

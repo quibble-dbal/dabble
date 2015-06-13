@@ -46,6 +46,8 @@ Dabble supports four 'main' types of queries: [`select`](usage/select.md),
 `Dabble\Adapter` object. They all follow a similar syntax where argument one is
 the table name, and further arguments are arrays of key/value pairs.
 
+There are also helper classes that these are actually a front for.
+
 Of course, regular PDO methods are also available for fine-grained tuning.
 
 ## FAQ
@@ -54,4 +56,18 @@ Of course, regular PDO methods are also available for fine-grained tuning.
 
     Sure - as long as your library uses `PDO`. Dabble is simply an _extension_
     to `PDO`, so you should be good to go.
+
+- #### What's the name "Dabble" at? ####
+
+    It's a sort-of portmanteau of "database abstraction layer". And it sounded
+    cute :)
+
+- #### How well-tested is the codebase? ####
+
+    Some of code dates back 10 years. Dabble is based on the database
+    abstraction layer shipped in the [Monolyth framework](http://monolyth.monomelodies.nl)
+    up to version 5. This in turn is based on code lifted from [CU2](http://www.cu2.nl)
+    which Marijn's company owned from 2009 to 2014.
+
+    So yes, it's pretty well tested in the real world :)
 
