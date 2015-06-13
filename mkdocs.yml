@@ -6,8 +6,8 @@ pages:
 - Home:
     - 'Quickstart': 'index.md'
 - Usage:
-    - 'The where array': 'usage/where.md'
-    - 'The options array': 'usage/options.md'
+    - 'WHERE clauses': 'usage/where.md'
+    - 'SQL "options"': 'usage/options.md'
     - 'Selecting': 'usage/select.md'
     - 'Inserting': 'usage/insert.md'
     - 'Updating': 'usage/update.md'
