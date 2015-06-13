@@ -156,7 +156,7 @@ class Where implements Bindable
 
     public function operator($value, $operator = '=')
     {
-        if ($value === null) {
+        if ($value === 'NULL') {
             return $operator == '=' ? 'IS' : 'IS NOT';
         }
         if ($operator === '!') {
