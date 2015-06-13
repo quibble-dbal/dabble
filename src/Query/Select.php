@@ -39,19 +39,12 @@ class Select extends Query
 
     public function execute()
     {
-        $sql = sprintf(
-            "SELECT %s FROM %s WHERE %s %s",
-            implode(', ', $this->fields),
-            $this->table,
-            $this->where,
-            $this->options
-        );
         try {
-            $stmt = parent::execute($sql);
+            $stmt = parent::execute();
         } catch (PDOException $e) {
             throw new SqlException(
                 $this->error(
-                    "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
+                    "Error in $this: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $this->bound
                 ),
                 1,
@@ -59,6 +52,17 @@ class Select extends Query
             );
         }
         return $stmt;
+    }
+
+    public function __toString()
+    {
+        return sprintf(
+            "SELECT %s FROM %s WHERE %s %s",
+            implode(', ', $this->fields),
+            $this->table,
+            $this->where,
+            $this->options
+        );
     }
 }
 

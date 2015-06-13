@@ -48,18 +48,12 @@ class Insert extends Query
 
     public function execute()
     {
-        $sql = sprintf(
-            "INSERT INTO %s (%s) VALUES (%s)",
-            $this->table,
-            str_replace("'", '', implode(', ', array_keys($this->fields))),
-            implode(', ', $this->fields)
-        );
         try {
-            $stmt = parent::execute($sql);
+            $stmt = parent::execute();
         } catch (PDOException $e) {
             throw new SqlException(
                 $this->error(
-                    "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
+                    "Error in $this: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $this->bound
                 ),
                 2,
@@ -68,10 +62,20 @@ class Insert extends Query
         }
         if (!(($affectedRows = $stmt->rowCount()) && $affectedRows)) {
             $info = $stmt->errorInfo();
-            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
+            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $this";
             throw new InsertException($this->error($msg, $this->bound));
         }
         return $affectedRows;
+    }
+
+    public function __toString()
+    {
+        return sprintf(
+            "INSERT INTO %s (%s) VALUES (%s)",
+            $this->table,
+            str_replace("'", '', implode(', ', array_keys($this->fields))),
+            implode(', ', $this->fields)
+        );
     }
 }
 

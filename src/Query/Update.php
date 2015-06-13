@@ -34,23 +34,12 @@ class Update extends Query
 
     public function execute()
     {
-        $fields = [];
-        foreach ($this->fields as $name => $value) {
-            $fields[] = sprintf('%s = %s', $name, $value);
-        }
-        $sql = sprintf(
-            "UPDATE %s SET %s WHERE %s %s",
-            $this->table,
-            implode(', ', $fields),
-            $this->where,
-            $this->options
-        );
         try {
-            $stmt = parent::execute($sql);
+            $stmt = parent::execute();
         } catch (PDOException $e) {
             throw new SqlException(
                 $this->error(
-                    "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
+                    "Error in $this: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $this->bound
                 ),
                 3,
@@ -59,10 +48,25 @@ class Update extends Query
         }
         if (!(($affectedRows = $stmt->rowCount()) && $affectedRows)) {
             $info = $stmt->errorInfo();
-            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
+            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $this";
             throw new UpdateException($this->error($msg, $this->bound), 1);
         }
         return $affectedRows;
+    }
+
+    public function __toString()
+    {
+        $fields = [];
+        foreach ($this->fields as $name => $value) {
+            $fields[] = sprintf('%s = %s', $name, $value);
+        }
+        return sprintf(
+            "UPDATE %s SET %s WHERE %s %s",
+            $this->table,
+            implode(', ', $fields),
+            $this->where,
+            $this->options
+        );
     }
 }
 

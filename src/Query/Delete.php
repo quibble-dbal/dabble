@@ -36,17 +36,12 @@ class Delete extends Query
      */
     public function execute()
     {
-        $sql = sprintf(
-            "DELETE FROM %s WHERE %s",
-            $this->table,
-            $this->where
-        );
         try {
-            $stmt = parent::execute($sql);
+            $stmt = parent::execute();
         } catch (PDOException $e) {
             throw new SqlException(
                 $this->error(
-                    "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
+                    "Error in $this: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $this->bound
                 ),
                 4,
@@ -55,10 +50,19 @@ class Delete extends Query
         }
         if (!(($affectedRows = $stmt->rowCount()) && $affectedRows)) {
             $info = $stmt->errorInfo();
-            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
+            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $this";
             throw new DeleteException($this->error($msg, $this->bound));
         }
         return $affectedRows;
+    }
+
+    public function __toString()
+    {
+        return sprintf(
+            "DELETE FROM %s WHERE %s",
+            $this->table,
+            $this->where
+        );
     }
 }
 
