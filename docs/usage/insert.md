@@ -38,3 +38,20 @@ $db->insert('foo', ['bar' => new Raw('NOW()')]);
 
 ```
 
+> Note that adapters also offer a `now()` method, with possible vendor-specific
+> syntax for the current timestamp.
+
+## `Dabble\Query\Insert`
+You can also use the low-level `Insert` object:
+
+```php
+<?php
+
+$insert = new Dabble\Query\Insert(
+    $table,
+    $hashOfFieldsAndValues
+);
+echo $insert->__toString(); // E.g. INSERT INTO foo (bar) VALUES ('1')
+$insert->execute();
+
+```
