@@ -24,8 +24,9 @@ abstract class Query implements Bindable
         }
     }
 
-    public function execute($sql)
+    public function execute()
     {
+        $sql = $this->__toString();
         $id = $this->adapter->id();
         $this->adapter->connect();
         if (!isset(self::$statementCache[$id][$sql])) {
@@ -64,5 +65,7 @@ abstract class Query implements Bindable
         }
         return $msg;
     }
+
+    public abstract function __toString();
 }
 
