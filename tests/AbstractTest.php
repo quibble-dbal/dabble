@@ -12,6 +12,11 @@ abstract class AbstractTest extends PHPUnit_Extensions_Database_TestCase
     use UpdateTest;
     use DeleteTest;
 
+    protected function getSetUpOperation()
+    {
+        // Needed for truncates to cascade...
+        return PHPUnit_Extensions_Database_Operation_Factory::CLEAN_INSERT(true);
+    }
     public function getDataSet()
     {
         return $this->createXMLDataSet(dirname(__FILE__).'/_files/data.xml');
