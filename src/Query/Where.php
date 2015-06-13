@@ -11,10 +11,7 @@
 
 namespace Dabble\Query;
 
-use PDO;
-use PDOException;
-use PDOStatement;
-use ArrayObject;
+use Dabble\Query;
 
 class Where implements Bindable
 {
@@ -50,7 +47,14 @@ class Where implements Bindable
             return false;
         }
         foreach ($where as $key => $value) {
-            if (is_numeric($key)) {
+            if (is_object($value)
+                && ($value instanceof Query || $value instanceof Where)
+            ) {
+                $this->bound = array_merge(
+                    $this->bound,
+                    $value->getBindings()
+                );
+            } elseif (is_numeric($key)) {
                 $where[$key] = new Where(
                     $value,
                     $this->separator == 'AND' ? 'OR' : 'AND'
@@ -60,6 +64,7 @@ class Where implements Bindable
                     $where[$key]->getBindings()
                 );
             } elseif (is_array($value)) {
+                $where[$key] = $this->prepareBindings($value);
             } else {
                 $where[$key] = $this->value($value);
             }
@@ -77,46 +82,41 @@ class Where implements Bindable
         if (!$this->where) {
             return '(1=1)';
         }
+        $array = [];
         foreach ($this->where as $key => $value) {
-            if (is_numeric($key)) {
-                $array[$key] = $value->__toString();
+            if (is_object($value)) {
+                if ($value instanceof Query) {
+                    $array[$key] = "$key = ($value)";
+                } elseif ($value instanceof Raw) {
+                    $array[$key] = "$key = $value";
+                } elseif ($value instanceof Where) {
+                    $array[$key] = "$value";
+                }
             } elseif (is_array($value)) {
                 $keys = array_keys($value);
                 $mod = array_shift($keys);
                 switch (strtoupper($mod)) {
                     case 'BETWEEN':
-                        $vals = array_shift($value);
-                        $array[$key] = sprintf(
-                            "($key BETWEEN %s AND %s)",
-                            $this->quote(array_shift($vals)),
-                            $this->quote(array_shift($vals))
-                        );
+                        $array[$key] = "$key BETWEEN ? AND ?";
                         break;
                     case 'IN':
                     case 'NOT IN':
-                        $array[$key] = $this->in(
-                            $key,
-                            $value[$mod],
-                            strtoupper($mod),
-                            $bind
-                        );
-                        break;
                     case 'ANY':
-                        $array[$key] = $this->any(
+                    case 'SOME':
+                    case 'ALL':
+                        $array[$key] = sprintf(
+                            '%s %s (%s)',
                             $key,
-                            array_unique($value[$mod]),
-                            $bind
+                            strtoupper($mod),
+                            $value[$mod] instanceof Query ?
+                                $value[$mod] :
+                                implode(', ', $value[$mod])
                         );
                         break;
                     case 'LIKE':
                         $array[$key] = sprintf(
-                            "(%s LIKE %s OR %s LIKE %s OR %s LIKE %s)",
-                            $key,
-                            $this->quote("%{$value[$mod]}"),
-                            $key,
-                            $this->quote("{$value[$mod]}%"),
-                            $key,
-                            $this->quote("%{$value[$mod]}%")
+                            "%s LIKE ?",
+                            $key
                         );
                         break;
                     default:
@@ -125,7 +125,7 @@ class Where implements Bindable
                             '%s %s %s',
                             $key,
                             $this->operator($val, $mod),
-                            $this->value($val)
+                            $val
                         );
                 }
             } else {
@@ -133,7 +133,7 @@ class Where implements Bindable
                     '%s %s %s',
                     $key,
                     $this->operator($value),
-                    $this->value($value)
+                    $value
                 );
             }
         }
