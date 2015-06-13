@@ -11,10 +11,10 @@
 
 namespace Dabble\Adapter;
 
-use Dabble\Adapter as DabbleAdapter;
+use Dabble\Adapter;
 
 /** MySQL-abstraction class. */
-class Mysql extends DabbleAdapter
+class Mysql extends Adapter
 {
     public function __construct(
         $dsn,
