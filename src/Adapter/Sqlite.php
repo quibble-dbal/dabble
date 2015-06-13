@@ -11,10 +11,11 @@
 
 namespace Dabble\Adapter;
 
-use Dabble\Adapter as DabbleAdapter;
+use Dabble\Adapter;
+use Dabble\Query\Raw;
 
 /** SqLite-abstraction class. */
-class Sqlite extends DabbleAdapter
+class Sqlite extends Adapter
 {
     public function __construct(
         $dsn,
@@ -56,6 +57,11 @@ class Sqlite extends DabbleAdapter
     public function random()
     {
         return 'RANDOM()';
+    }
+
+    public function now()
+    {
+        return new Raw('CURRENT_TIMESTAMP');
     }
 }
 
