@@ -10,13 +10,28 @@
 
 namespace Dabble;
 
+use Dabble\Query\Where;
+use Dabble\Query\Options;
+use Dabble\Query\Select;
+use Dabble\Query\Insert;
+use Dabble\Query\Update;
+use Dabble\Query\Delete;
+use Dabble\Query\Count;
+use Dabble\Query\SqlException;
+use Dabble\Query\SelectException;
+use Dabble\Query\UpdateException;
+use Dabble\Query\DeleteException;
+use Dabble\Query\Raw;
 use PDO;
 use PDOException;
 use PDOStatement;
-use ArrayObject;
 
 abstract class Adapter extends PDO
 {
+    use Query\Value {
+        Query\Value::value as _value;
+    }
+
     /**
      * Constants for aiding in interval statements.
      * {{{
@@ -34,10 +49,25 @@ abstract class Adapter extends PDO
     private $connectionSettings = [];
     private $connected = false;
 
-    public function __construct($d, $u = null, $p = null, array $o = [])
+    public function __construct(
+        $dsn,
+        $username = null,
+        $password = null,
+        array $options = []
+    ) {
+        $options[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
+        $this->connectionSettings = compact(
+            'dsn',
+            'username',
+            'password',
+            'options'
+        );
+    }
+
+    public function id()
     {
-        $o[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
-        $this->connectionSettings = compact('d', 'u', 'p', 'o');
+        return $this->connectionSettings['dsn']
+            .$this->connectionSettings['username'];
     }
 
     /**
@@ -48,14 +78,14 @@ abstract class Adapter extends PDO
      * @throws Dabble\Adapter\ConnectionFailedException if the database is
      *                                                  unavailable.
      */
-    protected function connect()
+    public function connect()
     {
         if ($this->connected) {
             return;
         }
         try {
             extract($this->connectionSettings);
-            parent::__construct($d, $u, $p, $o);
+            parent::__construct($dsn, $username, $password, $options);
             $this->connected = true;
         } catch (PDOException $e) {
             throw new Adapter\ConnectionFailedException($e->getMessage());
@@ -66,26 +96,6 @@ abstract class Adapter extends PDO
     {
         $this->connected = false;
         $this->connect();
-    }
-
-    /**
-     * Internal helper to correctly formate error messages.
-     *
-     * @param string $msg The original error message.
-     * @param array $bind Array of bound values.
-     * @return string Formatted error message.
-     */
-    protected function error($msg, array $bind = [])
-    {
-        foreach ($bind as $key => $value) {
-            if (is_null($value)) {
-                $value = 'NULL';
-            } elseif (is_bool($value)) {
-                $value = $value ? 'true' : 'false';
-            }
-            $msg .= "$key => $value\n";
-        }
-        return $msg;
     }
 
     /**
@@ -190,27 +200,6 @@ abstract class Adapter extends PDO
     }
 
     /**
-     * Select all rows from a table, PDOStatement::fetchAll-style.
-     *
-     * @param string $table The table(s) to query.
-     * @param mixed $fields The field (column) to query.
-     * @param mixed $where The where-clause.
-     * @param mixed $options The options (limit, offset etc.).
-     * @return array Array containing all found rows.
-     * @throws Dabble\Query\SelectException when no rows found.
-     * @throws Dabble\Query\SqlException on error.
-     */
-    public function fetchAll($table, $fields, $where = [], $options = [])
-    {
-        $results = $this->select($table, $fields, $where, $options);
-        $return = [];
-        foreach ($results() as $row) {
-            $return[] = $row;
-        }
-        return $return;
-    }
-
-    /**
      * Select rows from a table.
      *
      * @param string $table The table(s) to query.
@@ -223,43 +212,19 @@ abstract class Adapter extends PDO
      */
     public function select($table, $fields, $where = [], $options = [])
     {
-        $bind = [];
-        if (!is_array($fields)) {
+        if (is_string($fields)) {
             $fields = explode(',', $fields);
         }
-        $sql = sprintf(
-            "SELECT %s FROM %s WHERE %s %s",
-            implode(', ', $fields),
+        $query = new Select(
+            $this,
             $table,
-            $this->where($where, $bind),
-            $this->options($options, $bind)
+            $fields,
+            new Where($where),
+            new Options($options)
         );
-        try {
-            $key = serialize([$sql, $bind]);
-            if (isset($this->cache[$key])) {
-                return $this->cache[$key];
-            }
-        } catch (PDOException $e) {
-        }
-        if (!isset($this->prepared[$sql])) {
-            $this->connect();
-            $this->prepared[$sql] = $this->prepare($sql);
-        }
-        try {
-            $stmt = $this->prepared[$sql];
-            $stmt->execute($bind);
-        } catch (PDOException $e) {
-            throw new Query\SqlException(
-                $this->error(
-                    "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
-                    $bind
-                ),
-                1,
-                $e
-            );
-        }
+        $stmt = $query->execute();
         if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            throw new Query\SelectException($sql);
+            throw new SelectException($stmt);
         }
         return function () use ($stmt, &$first) {
             if ($first) {
@@ -275,6 +240,37 @@ abstract class Adapter extends PDO
     }
 
     /**
+     * Select all rows from a table, PDOStatement::fetchAll-style.
+     *
+     * @param string $table The table(s) to query.
+     * @param mixed $fields The field (column) to query.
+     * @param mixed $where The where-clause.
+     * @param mixed $options The options (limit, offset etc.).
+     * @return array Array containing all found rows.
+     * @throws Dabble\Query\SelectException when no rows found.
+     * @throws Dabble\Query\SqlException on error.
+     */
+    public function fetchAll($table, $fields, $where = [], $options = [])
+    {
+        if (is_string($fields)) {
+            $fields = explode(',', $fields);
+        }
+        $query = new Select(
+            $this,
+            $table,
+            $fields,
+            new Where($where),
+            new Options($options)
+        );
+        $stmt = $query->execute();
+        $results = $stmt->fetchAll();
+        if (!$results) {
+            throw new SelectException($stmt);
+        }
+        return $results;
+    }
+
+    /**
      * Retrieve a single row from the database.
      *
      * @param string $table The table(s) to query.
@@ -287,7 +283,6 @@ abstract class Adapter extends PDO
      */
     public function fetch($table, $fields, $where = null, $options = [])
     {
-        $this->connect();
         $options['limit'] = 1;
         if (!isset($options['offset'])) {
             $options['offset'] = 0;
@@ -333,51 +328,11 @@ abstract class Adapter extends PDO
      * @param string $table The table to insert into.
      * @param array $fields Array of Field => value pairs to insert.
      * @return mixed The last inserted serial, or 0 or true if none found.
-     * @throws Dabble\Query\InsertException if no rows were inserted.
-     * @throws Dabble\Query\SqlException on error.
      */
     public function insert($table, array $fields)
     {
-        $bind = [];
-        $use = [];
-        foreach ($fields as $name => $field) {
-            if (is_null($field)) {
-                continue;
-            }
-            $use[$name] = $field;
-        }
-        if (!$use) {
-            throw new Query\InsertException(
-                "No fields to bind; did you pass only NULL values?"
-            );
-        }
-        $fields = $use;
-        $sql = sprintf(
-            "INSERT INTO %s (%s) VALUES (%s)",
-            $table,
-            str_replace("'", '', implode(', ', array_keys($fields))),
-            implode(', ', $this->values($fields, $bind))
-        );
-        $this->connect();
-        try {
-            $statement = $this->prepare($sql);
-            $statement->execute($bind);
-        } catch (PDOException $e) {
-            throw new Query\SqlException(
-                $this->error(
-                    "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
-                    $bind
-                ),
-                2,
-                $e
-            );
-        }
-        if (!(($affectedRows = $statement->rowCount()) && $affectedRows)) {
-            $info = $statement->errorInfo();
-            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
-            throw new Query\InsertException($this->error($msg, $bind));
-        }
-        return $affectedRows;
+        $query = new Insert($this, $table, $fields);
+        return $query->execute();
     }
     
     /**
@@ -392,51 +347,14 @@ abstract class Adapter extends PDO
      */
     public function update($table, array $fields, $where, $options = null)
     {
-        $bind = [];
-        foreach ($fields as $key => &$value) {
-            if (is_array($value)) {
-                $value = call_user_func(function($value) {
-                    $new = 0;
-                    foreach ($value as $val) {
-                        if (strlen($val) && !is_numeric($val)) {
-                            return $value;
-                        }
-                        $new |= $val;
-                    }
-                    return $new;
-                }, $value);
-            }
-            if (!is_numeric($key)) {
-                $value = $key.' = '.$this->value($value, $bind);
-            }
-        }
-        $sql = sprintf(
-            "UPDATE %s SET %s WHERE %s %s",
+        $query = new Update(
+            $this,
             $table,
-            implode(', ', $fields),
-            $this->where($where, $bind),
-            $this->options($options, $bind)
+            $fields,
+            new Where($where),
+            new Options($options)
         );
-        try {
-            $this->connect();
-            $statement = $this->prepare($sql);
-            $statement->execute($bind);
-        } catch (PDOException $e) {
-            throw new Query\SqlException(
-                $this->error(
-                    "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
-                    $bind
-                ),
-                3,
-                $e
-            );
-        }
-        if (!(($affectedRows = $statement->rowCount()) && $affectedRows)) {
-            $info = $statement->errorInfo();
-            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
-            throw new Query\UpdateException($this->error($msg, $bind), 1);
-        }
-        return $affectedRows;
+        return $query->execute();
     }
 
     /**
@@ -450,32 +368,8 @@ abstract class Adapter extends PDO
      */
     public function delete($table, array $where)
     {
-        $bind = [];
-        $sql = sprintf(
-            "DELETE FROM %s WHERE %s",
-            $table,
-            $this->where($where, $bind)
-        );
-        $this->connect();
-        try {
-            $statement = $this->prepare($sql);
-            $statement->execute($bind);
-        } catch (PDOException $e) {
-            throw new Query\SqlException(
-                $this->error(
-                    "Error in $sql: {$e->errorInfo[2]}\n\nParamaters:\n",
-                    $bind
-                ),
-                4,
-                $e
-            );
-        }
-        if (!(($affectedRows = $statement->rowCount()) && $affectedRows)) {
-            $info = $statement->errorInfo();
-            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $sql";
-            throw new Query\DeleteException($this->error($msg, $bind));
-        }
-        return $affectedRows;
+        $query = new Delete($this, $table, new Where($where));
+        return $query->execute();
     }
 
     public function numRowsTotal(PDOStatement $result, &$bind)
@@ -493,7 +387,7 @@ abstract class Adapter extends PDO
     public function now($string = false)
     {
         if (!$string) {
-            return ['NOW()'];
+            return new Raw('NOW()');
         }
         return 'NOW()';
     }
@@ -503,206 +397,16 @@ abstract class Adapter extends PDO
         return null;
     }
 
-    public function values($array, &$bind)
+    public function values($array)
     {
-        foreach ($array as &$value) {
-            $value = $this->value($value, $bind);
-        }
-        return $array;
+        return array_map($array, [$this, 'value']);
     }
 
-    public function value($value, &$bind)
+    public function value($val)
     {
-        if (is_null($value)) {
-            return 'NULL';
-        }
-        if (is_bool($value)) {
-            return $value ? 'true' : 'false';
-        }
-        if ($value instanceof ArrayObject) {
-            $value = (array)$value;
-        }
-        if (is_array($value)) { // literal
-            return array_shift($value);
-        }
-        if (is_object($value)) {
-            $value = "$value";
-        }
-        $bind[] = $value;
-        return '?';
-    }
-
-    public function where($array, array &$bind, $seperator = 'AND')
-    {
-        $this->connect();
-        if (!$array) {
-            return '(1=1)';
-        }
-        if (!is_array($array)) {
-            return $array;
-        }
-        foreach ($array as $key => $value) {
-            if (is_numeric($key)) {
-                $array[$key] = $this->where(
-                    $value,
-                    $bind,
-                    $seperator == 'AND' ? 'OR' : 'AND'
-                );
-            } elseif (is_array($value)) {
-                $keys = array_keys($value);
-                $mod = array_shift($keys);
-                switch (strtoupper($mod)) {
-                    case 'BETWEEN':
-                        $vals = array_shift($value);
-                        $array[$key] = sprintf(
-                            "($key BETWEEN %s AND %s)",
-                            $this->quote(array_shift($vals)),
-                            $this->quote(array_shift($vals))
-                        );
-                        break;
-                    case 'IN':
-                    case 'NOT IN':
-                        $array[$key] = $this->in(
-                            $key,
-                            $value[$mod],
-                            strtoupper($mod),
-                            $bind
-                        );
-                        break;
-                    case 'ANY':
-                        $array[$key] = $this->any(
-                            $key,
-                            array_unique($value[$mod]),
-                            $bind
-                        );
-                        break;
-                    case 'LIKE':
-                        $array[$key] = sprintf(
-                            "(%s LIKE %s OR %s LIKE %s OR %s LIKE %s)",
-                            $key,
-                            $this->quote("%{$value[$mod]}"),
-                            $key,
-                            $this->quote("{$value[$mod]}%"),
-                            $key,
-                            $this->quote("%{$value[$mod]}%")
-                        );
-                        break;
-                    default:
-                        $val = array_shift($value);
-                        $array[$key] = sprintf(
-                            '%s %s %s',
-                            $key,
-                            $this->operator($val, $mod),
-                            $this->value($val, $bind)
-                        );
-                }
-            } else {
-                $array[$key] = sprintf(
-                    '%s %s %s',
-                    $key,
-                    $this->operator($value),
-                    $this->value($value, $bind)
-                );
-            }
-        }
-        return '('.implode(" $seperator ", $array).')';
-    }
-
-    public function in($key, $values, $operator, &$bind)
-    {
-        if (!is_array($values)) {
-            $values = [$values];
-        }
-        $values = array_unique($values);
-        return sprintf(
-            '%s %s (%s)',
-            $key,
-            $operator,
-            implode(', ', $this->values($values, $bind))
-        );      
-    }
-
-    public function operator($value, $operator = '=')
-    {
-        if ($value === null) {
-            return $operator == '=' ? 'IS' : 'IS NOT';
-        }
-        if ($operator === '!') {
-            return '<>';
-        }
-        if (is_numeric($operator)) {
-            return '=';
-        }
-        return $operator;
-    }
-    
-    public function options($myoptions, &$bind)
-    {
-        if (!$myoptions) {
-            return '';
-        }
-        $options = [];
-        foreach ($myoptions as $key => $value) {
-            $options[strtoupper($key)] = $value;
-        }
-        $myoptions = [];
-        if (isset($options['GROUP'])) {
-            if (!is_array($options['GROUP'])) {
-                $options['GROUP'] = [$options['GROUP']];
-            }
-            $myoptions[] = sprintf(
-                "GROUP BY %s",
-                implode(', ', $options['GROUP'])
-            );
-        }
-        if (isset($options['HAVING'])) {
-            $myoptions[] = sprintf(
-                "HAVING %s",
-                $this->where($options['HAVING'], $bind)
-            );
-        }
-        if (isset($options['ORDER'])) {
-            $tmp = [];
-            if (!is_array($options['ORDER'])) {
-                $myoptions[] = "ORDER BY {$options['ORDER']}";
-            } else {
-                foreach ($options['ORDER'] as $order) {
-                    if (!is_array($order)) {
-                        $tmp[] = $order;
-                        continue;
-                    }
-                    $dir = array_shift($dir = array_keys($order));
-                    $col = array_shift($order);
-                    if (!is_array($col)) {
-                        $col = [$col];
-                    }
-                    foreach ($col as $onecol) {
-                        $tmp[] = sprintf(
-                            '%s %s',
-                            $onecol,
-                            strtoupper($dir)
-                        );
-                    }
-                }
-                $myoptions[] = sprintf(
-                    "ORDER BY %s",
-                    implode(', ', $tmp)
-                );
-            }
-        }
-        if (isset($options['LIMIT'])) {
-            $myoptions[] = sprintf(
-                "LIMIT %d",
-                $options['LIMIT']
-            );
-        }
-        if (isset($options['OFFSET'])) {
-            $myoptions[] = sprintf(
-                "OFFSET %d",
-                $options['OFFSET']
-            );
-        }
-        return implode(' ', $myoptions);
+        $old = $val;
+        $val = $this->_value($val);
+        return $val == '?' ? $old : $val;
     }
 }
 
