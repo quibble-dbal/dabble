@@ -56,9 +56,17 @@ class Select extends Query
 
     public function __toString()
     {
+        $fields = [];
+        foreach ($this->fields as $key => $value) {
+            if (is_numeric($key)) {
+                $fields[] = $value;
+            } else {
+                $fields[] = "$value $key";
+            }
+        }
         return sprintf(
             "SELECT %s FROM %s WHERE %s %s",
-            implode(', ', $this->fields),
+            implode(', ', $fields),
             $this->table,
             $this->where,
             $this->options
