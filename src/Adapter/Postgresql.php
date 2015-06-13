@@ -11,12 +11,12 @@
 
 namespace Dabble\Adapter;
 
-use Dabble\Adapter as DabbleAdapter;
+use Dabble\Adapter;
 
 /**
  * PostgreSQL database abstraction class.
  */
-class Postgresql extends DabbleAdapter
+class Postgresql extends Adapter
 {
     public function __construct(
         $dsn,
