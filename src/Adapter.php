@@ -224,7 +224,7 @@ abstract class Adapter extends PDO
         );
         $stmt = $query->execute();
         if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            throw new SelectException($stmt);
+            throw new SelectException($stmt->queryString);
         }
         return function () use ($stmt, &$first) {
             if ($first) {
