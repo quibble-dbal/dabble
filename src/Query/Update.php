@@ -19,8 +19,13 @@ class Update extends Query
     protected $where;
     protected $options;
 
-    public function __construct(Adapter $adapter, $table, array $fields, Where $where, Options $options = null)
-    {
+    public function __construct(
+        Adapter $adapter,
+        $table,
+        array $fields,
+        Where $where,
+        Options $options = null
+    ) {
         parent::__construct($adapter, $table);
         $this->fields = $this->prepareBindings($fields);
         $this->where = $where;
