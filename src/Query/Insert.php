@@ -48,18 +48,7 @@ class Insert extends Query
 
     public function execute()
     {
-        try {
-            $stmt = parent::execute();
-        } catch (PDOException $e) {
-            throw new SqlException(
-                $this->error(
-                    "Error in $this: {$e->errorInfo[2]}\n\nParamaters:\n",
-                    $this->bound
-                ),
-                2,
-                $e
-            );
-        }
+        $stmt = parent::execute();
         if (!(($affectedRows = $stmt->rowCount()) && $affectedRows)) {
             $info = $stmt->errorInfo();
             $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $this";

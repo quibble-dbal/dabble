@@ -24,8 +24,13 @@ class Select extends Query
     protected $where;
     protected $options;
 
-    public function __construct(Adapter $adapter, $table, array $fields, Where $where, Options $options)
-    {
+    public function __construct(
+        Adapter $adapter,
+        $table,
+        array $fields,
+        Where $where,
+        Options $options
+    ) {
         parent::__construct($adapter, $table);
         $this->fields = $fields;
         $this->bound = array_merge(
@@ -39,19 +44,21 @@ class Select extends Query
 
     public function execute()
     {
-        try {
-            $stmt = parent::execute();
-        } catch (PDOException $e) {
-            throw new SqlException(
-                $this->error(
-                    "Error in $this: {$e->errorInfo[2]}\n\nParamaters:\n",
-                    $this->bound
-                ),
-                1,
-                $e
-            );
+        $stmt = parent::execute();
+        if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
+            throw new SelectException($stmt->queryString);
         }
-        return $stmt;
+        return function () use ($stmt, &$first) {
+            if ($first) {
+                $yield = $first;
+                $first = false;
+                yield $yield;
+            }
+            while (false !== $row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                yield $row;
+            }
+            return;
+        };
     }
 
     public function __toString()
