@@ -17,10 +17,7 @@ use Dabble\Query\Insert;
 use Dabble\Query\Update;
 use Dabble\Query\Delete;
 use Dabble\Query\Count;
-use Dabble\Query\SqlException;
 use Dabble\Query\SelectException;
-use Dabble\Query\UpdateException;
-use Dabble\Query\DeleteException;
 use Dabble\Query\Raw;
 use PDO;
 use PDOException;
@@ -222,21 +219,7 @@ abstract class Adapter extends PDO
             new Where($where),
             new Options($options)
         );
-        $stmt = $query->execute();
-        if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
-            throw new SelectException($stmt->queryString);
-        }
-        return function () use ($stmt, &$first) {
-            if ($first) {
-                $yield = $first;
-                $first = false;
-                yield $yield;
-            }
-            while (false !== $row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                yield $row;
-            }
-            return;
-        };
+        return $query->execute();
     }
 
     /**
@@ -262,10 +245,11 @@ abstract class Adapter extends PDO
             new Where($where),
             new Options($options)
         );
-        $stmt = $query->execute();
+        $stmt = $this->prepare($query->__toString());
+        $stmt->execute($query->getBindings());
         $results = $stmt->fetchAll();
         if (!$results) {
-            throw new SelectException($stmt);
+            throw new SelectException($stmt->queryString);
         }
         return $results;
     }
