@@ -4,6 +4,8 @@ namespace Dabble;
 
 use Dabble\Query\Bindable;
 use Dabble\Query\Value;
+use Dabble\Query\SqlException;
+use PDOException;
 
 abstract class Query implements Bindable
 {
@@ -26,14 +28,25 @@ abstract class Query implements Bindable
 
     public function execute()
     {
-        $sql = $this->__toString();
-        $id = $this->adapter->id();
-        $this->adapter->connect();
-        if (!isset(self::$statementCache[$id][$sql])) {
-            self::$statementCache[$id][$sql] = $this->adapter->prepare($sql);
+        try {
+            $sql = $this->__toString();
+            $id = $this->adapter->id();
+            $this->adapter->connect();
+            if (!isset(self::$statementCache[$id][$sql])) {
+                self::$statementCache[$id][$sql] = $this->adapter->prepare($sql);
+            }
+            self::$statementCache[$id][$sql]->execute($this->bound);
+            return self::$statementCache[$id][$sql];
+        } catch (PDOException $e) {
+            throw new SqlException(
+                $this->error(
+                    "Error in $this: {$e->errorInfo[2]}\n\nParamaters:\n",
+                    $this->bound
+                ),
+                3,
+                $e
+            );
         }
-        self::$statementCache[$id][$sql]->execute($this->bound);
-        return self::$statementCache[$id][$sql];
     }
 
     public function getBindings()
