@@ -64,7 +64,13 @@ class Where implements Bindable
                     $where[$key]->getBindings()
                 );
             } elseif (is_array($value)) {
-                $where[$key] = $this->prepareBindings($value);
+                $map = function ($value) use (&$map) {
+                    if (is_array($value)) {
+                        return array_map($map, $value);
+                    }
+                    return $this->value($value);
+                };
+                $where[$key] = array_map($map, $value);
             } else {
                 $where[$key] = $this->value($value);
             }
