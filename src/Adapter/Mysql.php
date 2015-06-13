@@ -16,17 +16,26 @@ use Dabble\Adapter as DabbleAdapter;
 /** MySQL-abstraction class. */
 class Mysql extends DabbleAdapter
 {
-    public function __construct($d, $n = null, $p = null, array $o = [])
-    {
-        return parent::__construct("mysql:$d", $n, $p, $o);
+    public function __construct(
+        $dsn,
+        $username = null,
+        $password = null,
+        array $options = []
+    ) {
+        return parent::__construct(
+            "mysql:$dsn",
+            $username,
+            $password,
+            $options
+        );
     }
 
-    public function value($value, &$bind)
+    public function value($value)
     {
         if (is_bool($value)) {
             return $value ? 1 : 0;
         }
-        return parent::value($value, $bind);
+        return parent::value($value);
     }
 
     public function interval($quantity, $amount)
