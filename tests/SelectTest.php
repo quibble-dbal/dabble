@@ -50,5 +50,12 @@ trait SelectTest
         $rows = $db->fetchAll('test', '*');
         $this->assertEquals(3, count($rows));
     }
+
+    public function testAlias()
+    {
+        $db = $this->getConnection()->getConnection();
+        $row = $db->fetch('test', ['foo' => 'name'], ['id' => 1]);
+        $this->assertEquals('foo', $row['foo']);
+    }
 }
 
