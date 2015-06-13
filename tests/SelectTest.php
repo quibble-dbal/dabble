@@ -57,5 +57,22 @@ trait SelectTest
         $row = $db->fetch('test', ['foo' => 'name'], ['id' => 1]);
         $this->assertEquals('foo', $row['foo']);
     }
+
+    public function testSubquery()
+    {
+        $db = $this->getConnection()->getConnection();
+        $row = $db->fetch(
+            'test',
+            '*',
+            ['id' => new Dabble\Query\Select(
+                $db,
+                'test2',
+                ['test'],
+                new Dabble\Query\Where(['data' => 'lorem ipsum']),
+                new Dabble\Query\Options
+            )]
+        );
+        $this->assertEquals('foo', $row['name']);
+    }
 }
 
