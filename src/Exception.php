@@ -10,12 +10,10 @@
 
 namespace Dabble;
 
-use PDOException;
-
 /**
  * This is just a stub and shouldn't get thrown.
  */
-abstract class Exception extends PDOException
+abstract class Exception extends \Exception
 {
 }
 
