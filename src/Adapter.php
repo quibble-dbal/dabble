@@ -247,7 +247,7 @@ abstract class Adapter extends PDO
         );
         $stmt = $this->prepare($query->__toString());
         $stmt->execute($query->getBindings());
-        $results = $stmt->fetchAll();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if (!$results) {
             throw new SelectException($stmt->queryString);
         }
