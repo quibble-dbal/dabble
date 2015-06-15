@@ -1,6 +1,6 @@
 <?php
 
-namespace Dabble;
+namespace Dabble\Query;
 
 class Raw
 {
