@@ -48,17 +48,11 @@ class Select extends Query
         if (false === ($first = $stmt->fetch(PDO::FETCH_ASSOC))) {
             throw new SelectException($stmt->queryString);
         }
-        return function () use ($stmt, &$first) {
-            if ($first) {
-                $yield = $first;
-                $first = false;
-                yield $yield;
-            }
-            while (false !== $row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                yield $row;
-            }
-            return;
-        };
+        if (PHP_VERSION_ID < 50500) {
+            return include 'simple.php';
+        } else {
+            return include 'yield.php';
+        }
     }
 
     public function __toString()
