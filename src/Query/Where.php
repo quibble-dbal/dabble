@@ -47,13 +47,14 @@ class Where implements Bindable
             return false;
         }
         foreach ($where as $key => $value) {
-            if (is_object($value)
-                && ($value instanceof Query || $value instanceof Where)
-            ) {
-                $this->bound = array_merge(
-                    $this->bound,
-                    $value->getBindings()
-                );
+            if (is_object($value)) {
+                if ($value instanceof Query || $value instanceof Where) {
+                    $this->bound = array_merge(
+                        $this->bound,
+                        $value->getBindings()
+                    );
+                } elseif ($value instanceof Raw) {
+                }
             } elseif (is_numeric($key)) {
                 $where[$key] = new Where(
                     $value,
