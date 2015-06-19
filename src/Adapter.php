@@ -209,7 +209,7 @@ abstract class Adapter extends PDO
      */
     public function select($table, $fields, $where = [], $options = [])
     {
-        if (is_string($fields)) {
+        if (is_string($fields) || is_integer($fields)) {
             $fields = explode(',', $fields);
         }
         $query = new Select(
