@@ -127,6 +127,9 @@ class Where implements Bindable
                         break;
                     default:
                         $val = array_shift($value);
+                        while (is_array($val)) {
+                            $val = array_shift($val);
+                        }
                         $array[$key] = sprintf(
                             '%s %s %s',
                             $key,
