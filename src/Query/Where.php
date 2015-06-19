@@ -95,7 +95,11 @@ class Where implements Bindable
                 if ($value instanceof Query) {
                     $array[$key] = "$key = ($value)";
                 } elseif ($value instanceof Raw) {
-                    $array[$key] = "$key = $value";
+                    if (is_numeric($key)) {
+                        $array[$key] = "$value";
+                    } else {
+                        $array[$key] = "$key = $value";
+                    }
                 } elseif ($value instanceof Where) {
                     $array[$key] = "$value";
                 }
