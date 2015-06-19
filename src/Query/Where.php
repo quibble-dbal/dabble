@@ -35,10 +35,10 @@ class Where implements Bindable
 
     public function __construct(array $where = null, $separator = 'AND')
     {
+        $this->separator = $separator;
         if ($where) {
             $this->where = $this->prepareBindings($where);
         }
-        $this->separator = $separator;
     }
 
     public function prepareBindings(array $where)
