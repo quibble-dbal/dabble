@@ -119,7 +119,8 @@ class Where implements Bindable
                             '%s %s (%s)',
                             $key,
                             strtoupper($mod),
-                            $value[$mod] instanceof Query ?
+                            $value[$mod] instanceof Query
+                                || !is_array($value[$mod]) ?
                                 $value[$mod] :
                                 implode(', ', $value[$mod])
                         );
