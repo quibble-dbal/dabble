@@ -294,6 +294,14 @@ abstract class Adapter extends PDO
     }
 
     /**
+     * Alias for Dabble\Adapter::column for consitency with PDO.
+     */
+    public function fetchColumn($table, $field, $where = null, $options = null)
+    {
+        return $this->column($table, $field, $where, $options);
+    }
+
+    /**
      * Retrieve a count from a table.
      *
      * @param string $table The table(s) to query.
