@@ -28,6 +28,13 @@ abstract class Query implements Bindable
 
     public function execute()
     {
+        $stmt = $this->statement();
+        $stmt->execute($this->bound);
+        return $stmt;
+    }
+
+    public function statement()
+    {
         try {
             $sql = $this->__toString();
             $id = $this->adapter->id();
@@ -35,7 +42,6 @@ abstract class Query implements Bindable
             if (!isset(self::$statementCache[$id][$sql])) {
                 self::$statementCache[$id][$sql] = $this->adapter->prepare($sql);
             }
-            self::$statementCache[$id][$sql]->execute($this->bound);
             return self::$statementCache[$id][$sql];
         } catch (PDOException $e) {
             throw new SqlException(

@@ -235,7 +235,7 @@ abstract class Adapter extends PDO
      */
     public function fetchAll($table, $fields, $where = [], $options = [])
     {
-        if (is_string($fields)) {
+        if (is_scalar($fields)) {
             $fields = explode(',', $fields);
         }
         $query = new Select(
@@ -291,6 +291,14 @@ abstract class Adapter extends PDO
     public function column($table, $field, $where = null, $options = null)
     {
         return array_shift($this->fetch($table, $field, $where, $options));
+    }
+
+    /**
+     * Alias for Dabble\Adapter::column for consitency with PDO.
+     */
+    public function fetchColumn($table, $field, $where = null, $options = null)
+    {
+        return $this->column($table, $field, $where, $options);
     }
 
     /**
