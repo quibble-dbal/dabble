@@ -329,6 +329,9 @@ abstract class Adapter extends PDO
         } elseif (is_object($class)) {
             $class = get_class($class);
         }
+        if (is_scalar($fields)) {
+            $fields = explode(',', $fields);
+        }
         $query = new Select(
             $this,
             $table,
