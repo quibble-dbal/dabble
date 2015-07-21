@@ -302,6 +302,50 @@ abstract class Adapter extends PDO
     }
 
     /**
+     * Retrieve a single row as an object.
+     *
+     * @param mixed $class Classname, object or null (defaults to StdClass) to
+     *                     select into.
+     * @param string $table The table(s) to query.
+     * @param string $field The field (column) to query.
+     * @param array $where An SQL where-array.
+     * @param array $options Array of options.
+     * @return mixed An object of the desired class initialized with the row's
+     *               values.
+     * @throws Dabble\Query\SelectException when no row was found.
+     * @throws Dabble\Query\SqlException on error.
+     */
+
+    public function fetchObject(
+        $class = null,
+        $table,
+        $fields,
+        $where = null,
+        $options = []
+    )
+    {
+        if (is_null($class)) {
+            $class = 'StdClass';
+        } elseif (is_object($class)) {
+            $class = get_class($class);
+        }
+        $query = new Select(
+            $this,
+            $table,
+            $fields,
+            new Where($where),
+            new Options($options)
+        );
+        $stmt = $this->prepare($query->__toString());
+        $stmt->execute($query->getBindings());
+        $result = $stmt->fetchObject($class);
+        if (!$result) {
+            throw new SelectException($stmt->queryString);
+        }
+        return $result;
+    }
+
+    /**
      * Retrieve a count from a table.
      *
      * @param string $table The table(s) to query.
