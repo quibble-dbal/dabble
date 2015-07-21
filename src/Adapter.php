@@ -235,7 +235,7 @@ abstract class Adapter extends PDO
      */
     public function fetchAll($table, $fields, $where = [], $options = [])
     {
-        if (is_string($fields)) {
+        if (is_scalar($fields)) {
             $fields = explode(',', $fields);
         }
         $query = new Select(
