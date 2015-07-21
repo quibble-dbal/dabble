@@ -41,8 +41,8 @@ abstract class Query implements Bindable
             $this->adapter->connect();
             if (!isset(self::$statementCache[$id][$sql])) {
                 self::$statementCache[$id][$sql] = $this->adapter->prepare($sql);
-                return self::$statementCache[$id][$sql];
             }
+            return self::$statementCache[$id][$sql];
         } catch (PDOException $e) {
             throw new SqlException(
                 $this->error(
