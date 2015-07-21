@@ -28,7 +28,9 @@ abstract class Query implements Bindable
 
     public function execute()
     {
-        return $this->statement()->execute($this->bound);
+        $stmt = $this->statement();
+        $stmt->execute($this->bound);
+        return $stmt;
     }
 
     public function statement()
