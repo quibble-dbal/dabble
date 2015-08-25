@@ -24,7 +24,7 @@ class Update extends Query
         $table,
         array $fields,
         Where $where,
-        Options $options = null
+        Options $options
     ) {
         parent::__construct($adapter, $table);
         $this->fields = $this->prepareBindings($fields);
