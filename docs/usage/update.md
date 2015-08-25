@@ -50,3 +50,7 @@ $update->execute();
 > options. E.g. for updates, probably only `LIMIT` and maybe `OFFSET` usually
 > make sense.
 
+`Update::execute` returns the number of affected rows. If no rows were
+affected, a `Dabble\Query\UpdateException` is thrown. If your SQL contains
+errors, a `Dabble\Query\SqlException` is thrown.
+

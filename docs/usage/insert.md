@@ -55,3 +55,8 @@ echo $insert->__toString(); // E.g. INSERT INTO foo (bar) VALUES ('1')
 $insert->execute();
 
 ```
+
+`Insert::execute` returns the number of affected rows. If no rows were
+affected, a `Dabble\Query\InsertException` is thrown. If your SQL contains
+errors, a `Dabble\Query\SqlException` is thrown.
+
