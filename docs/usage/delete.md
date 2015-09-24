@@ -31,3 +31,7 @@ $delete->execute();
 > options. E.g. for deletes, probably only `LIMIT` and maybe `OFFSET` usually
 > make sense.
 
+`Delete::execute` returns the number of affected rows. If no rows were
+affected, a `Dabble\Query\DeleteException` is thrown. If your SQL contains
+errors, a `Dabble\Query\SqlException` is thrown.
+
