@@ -1,42 +1,56 @@
 <?php
 
+namespace Dabble\Test;
+
+use Dabble\Adapter;
+use Dabble\Query\SelectException;
+
 trait SelectTest
 {
-    public function testSelects()
+    /**
+     * @Description {0}::select should return 3 rows when called with no where
+     */
+    public function testSelects(Adapter $db, $table = 'test', $fields = '*')
     {
-        $db = $this->getConnection()->getConnection();
-        $result = $db->select('test', '*');
-        $test = [];
-        foreach ($result() as $row) {
-            $test[] = (int)$row['id'];
-        }
-        $this->assertEquals([1, 2, 3], $test);
-
-        // Re-query should also work, yielding a new result set:
-        $result = $db->select('test', '*', [], ['order' => 'id']);
-        $test = [];
-        foreach ($result() as $row) {
-            $test[] = (int)$row['id'];
-        }
-        $this->assertEquals([1, 2, 3], $test);
-
-        $db = $this->getConnection()->getConnection();
-        $result = $db->fetch('test', '*', [], ['order' => 'id']);
-        $this->assertEquals(1, (int)$result['id']);
-
-        $result = $db->column('test', 'id', [], ['order' => 'id']);
-        $this->assertEquals(1, (int)$result);
+        return function ($result) {
+            $test = [];
+            foreach ($result() as $row) {
+                $test[] = (int)$row['id'];
+            }
+            return $test == [1, 2, 3];
+        };
     }
 
     /**
-     * @expectedException Dabble\Query\SelectException
+     * @Description {0}::fetch should return just the first row
      */
-    public function testNoResults()
+    public function testFetch(Adapter $db, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
-        $db = $this->getConnection()->getConnection();
-        $db->select('test', '*', ['id' => 12345]);
+        return [
+            'id' => 1,
+            'name' => 'foo',
+            'status' => 15,
+            'datecreated' => '2015-03-20 10:00:00',
+        ];
     }
 
+    /**
+     * @Description {0}::column should return just a single column
+     */
+    public function testColumn(Adapter $db, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
+    {
+        return 1;
+    }
+
+    /**
+     * @Description For no results, {0}::select should throw an exception
+     */
+    public function testNoResults(Adapter $db, $table = 'test', $fields = '*', $where = ['id' => 12345])
+    {
+        throw new SelectException;
+    }
+
+    /*
     public function testCount()
     {
         $db = $this->getConnection()->getConnection();
@@ -74,5 +88,6 @@ trait SelectTest
         );
         $this->assertEquals('foo', $row['name']);
     }
+    */
 }
 
