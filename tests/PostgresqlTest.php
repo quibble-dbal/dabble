@@ -1,5 +1,7 @@
 <?php
 
+namespace Dabble\Test;
+
 use Dabble\Adapter\Postgresql;
 
 class PostgresqlTest extends AbstractTest
