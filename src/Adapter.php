@@ -73,7 +73,7 @@ abstract class Adapter extends PDO
      * without necessarily worrying about overhead (e.g. lots of related sites).
      *
      * @throws Dabble\Adapter\ConnectionFailedException if the database is
-     *                                                  unavailable.
+     *  unavailable.
      */
     public function connect()
     {
@@ -152,7 +152,7 @@ abstract class Adapter extends PDO
         return parent::lastInsertId($name);
     }
 
-    public function prepare($statement, array $driver_options = [])
+    public function prepare($statement, $driver_options = null)
     {
         $this->connect();
         return parent::prepare($statement, $driver_options);
@@ -311,7 +311,7 @@ abstract class Adapter extends PDO
      * @param array $where An SQL where-array.
      * @param array $options Array of options.
      * @return mixed An object of the desired class initialized with the row's
-     *               values.
+     *  values.
      * @throws Dabble\Query\SelectException when no row was found.
      * @throws Dabble\Query\SqlException on error.
      */
@@ -423,12 +423,9 @@ abstract class Adapter extends PDO
         return $statement->fetchColumn();
     }
 
-    public function now($string = false)
+    public function now()
     {
-        if (!$string) {
-            return new Raw('NOW()');
-        }
-        return 'NOW()';
+        return new Raw('NOW()');
     }
 
     public function datenull()
