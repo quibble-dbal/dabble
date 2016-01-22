@@ -1,5 +1,7 @@
 <?php
 
+namespace Dabble\Test;
+
 trait InsertTest
 {
     public function testInsert()
