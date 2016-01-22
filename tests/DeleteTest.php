@@ -1,5 +1,7 @@
 <?php
 
+namespace Dabble\Test;
+
 trait DeleteTest
 {
     public function testDelete()
