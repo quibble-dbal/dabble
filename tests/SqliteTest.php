@@ -1,5 +1,7 @@
 <?php
 
+namespace Dabble\Test;
+
 use Dabble\Adapter\Sqlite;
 
 class SqliteTest extends AbstractTest
