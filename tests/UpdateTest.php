@@ -1,5 +1,7 @@
 <?php
 
+namespace Dabble\Test;
+
 trait UpdateTest
 {
     public function testUpdate()
