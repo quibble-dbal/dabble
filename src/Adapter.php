@@ -291,7 +291,8 @@ abstract class Adapter extends PDO
      */
     public function column($table, $field, $where = null, $options = null)
     {
-        return array_shift($this->fetch($table, $field, $where, $options));
+        $results = $this->fetch($table, $field, $where, $options);
+        return array_shift($results);
     }
 
     /**
