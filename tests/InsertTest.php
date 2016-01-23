@@ -2,22 +2,25 @@
 
 namespace Dabble\Test;
 
+use Dabble\Adapter;
+use Dabble\Query\InsertException;
+
 trait InsertTest
 {
-    public function testInsert()
+    /**
+     * @Description {0}::insert should insert a new row
+     */
+    public function testInsert(Adapter $db, $table = 'test', $values = ['name' => 'monomelodies'])
     {
-        $db = $this->getConnection()->getConnection();
-        $affectedRows = $db->insert('test', ['name' => 'monomelodies']);
-        $this->assertEquals(1, (int)$affectedRows);
+        return 1;
     }
 
     /**
-     * @expectedException Dabble\Query\InsertException
+     * @Description {0}::insert should throw an exception if nothing was inserted
      */
-    public function testNoInsert()
+    public function testNoInsert(Adapter $db, $table = 'test', $values = ['name' => null])
     {
-        $db = $this->getConnection()->getConnection();
-        $db->insert('test', ['name' => null]);
+        throw new InsertException;
     }
 }
 
