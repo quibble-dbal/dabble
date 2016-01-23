@@ -4,22 +4,23 @@ namespace Dabble\Test;
 
 use Dabble\Adapter\Postgresql;
 
-class PostgresqlTest extends AbstractTest
+/**
+ * @Description Tests for PostgreSQL
+ */
+class PostgresqlTest
 {
-    public function getConnection()
+    use SelectTest;
+    use InsertTest;
+    use UpdateTest;
+    use DeleteTest;
+
+    public function __construct()
     {
-        static $db;
-        if (!isset($db)) {
-            $db = $this->createDefaultDBConnection(
-                new Postgresql(
-                    'dbname=dabble_test;host=localhost',
-                    'dabble',
-                    'test'
-                ),
-                'dabble_test'
-            );
-        }
-        return $db;
+        $this->db = new Postgresql(
+            'dbname=dabble_test;host=localhost',
+            'dabble',
+            'test'
+        );
     }
 }
 
