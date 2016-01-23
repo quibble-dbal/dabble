@@ -5,13 +5,17 @@ namespace Dabble\Test;
 use Dabble\Adapter;
 use Dabble\Query\SelectException;
 
+/**
+ * @Feature Selecting
+ */
 trait SelectTest
 {
     /**
-     * @Description {0}::select should return 3 rows when called with no where
+     * @Scenario {0}::select should return 3 rows when called with no where
      */
-    public function testSelects(Adapter $db, $table = 'test', $fields = '*')
+    public function testSelects(Adapter &$db = null, $table = 'test', $fields = '*')
     {
+        $db = $this->db;
         return function ($result) {
             if (!$result) {
                 return false;
@@ -25,10 +29,11 @@ trait SelectTest
     }
 
     /**
-     * @Description {0}::fetch should return just the first row
+     * @Scenario {0}::fetch should return just the first row
      */
-    public function testFetch(Adapter $db, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
+    public function testFetch(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
+        $db = $this->db;
         return [
             'id' => 1,
             'name' => 'foo',
@@ -38,18 +43,20 @@ trait SelectTest
     }
 
     /**
-     * @Description {0}::column should return just a single column
+     * @Scenario {0}::column should return just a single column
      */
-    public function testColumn(Adapter $db, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
+    public function testColumn(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
+        $db = $this->db;
         return 1;
     }
 
     /**
-     * @Description For no results, {0}::select should throw an exception
+     * @Scenario For no results, {0}::select should throw an exception
      */
-    public function testNoResults(Adapter $db, $table = 'test', $fields = '*', $where = ['id' => 12345])
+    public function testNoResults(Adapter &$db = null, $table = 'test', $fields = '*', $where = ['id' => 12345])
     {
+        $db = $this->db;
         throw new SelectException;
     }
 
