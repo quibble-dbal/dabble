@@ -5,7 +5,7 @@ namespace Dabble\Test;
 use Dabble\Adapter\Postgresql;
 
 /**
- * @Description Tests for PostgreSQL
+ * @Feature Tests for PostgreSQL
  */
 class PostgresqlTest
 {
