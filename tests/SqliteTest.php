@@ -4,22 +4,19 @@ namespace Dabble\Test;
 
 use Dabble\Adapter\Sqlite;
 
-class SqliteTest extends AbstractTest
+/**
+ * @Description Tests for SQLite
+ */
+class SqliteTest
 {
-    public function getConnection()
+    use SelectTest;
+    use InsertTest;
+    use UpdateTest;
+    use DeleteTest;
+
+    public function __construct()
     {
-        static $db;
-        if (!isset($db)) {
-            $db = $this->createDefaultDBConnection(
-                new Sqlite(':memory:'),
-                'dabble_test'
-            );
-            $schema = file_get_contents(
-                dirname(__FILE__).'/_files/schema.sqlite.sql'
-            );
-            $db->getConnection()->exec($schema);
-        }
-        return $db;
+        $this->db = new Sqlite(':memory:');
     }
 }
 
