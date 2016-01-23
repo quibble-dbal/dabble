@@ -155,6 +155,7 @@ abstract class Adapter extends PDO
     public function prepare($statement, $driver_options = null)
     {
         $this->connect();
+        $driver_options = $driver_options ?: [];
         return parent::prepare($statement, $driver_options);
     }
 
