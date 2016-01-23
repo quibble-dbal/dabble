@@ -25,7 +25,7 @@ trait DeleteTest
     public function testNoDelete(Adapter &$db = null, $table = 'test', $where = ['id' => 12345])
     {
         $db = $this->db;
-        return new DeleteException;
+        throw new DeleteException;
     }
 }
 
