@@ -295,7 +295,7 @@ abstract class Adapter extends PDO
     }
 
     /**
-     * Alias for Dabble\Adapter::column for consitency with PDO.
+     * Alias for Dabble\Adapter::column for consistency with PDO.
      */
     public function fetchColumn($table, $field, $where = null, $options = null)
     {
