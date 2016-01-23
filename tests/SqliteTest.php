@@ -5,7 +5,7 @@ namespace Dabble\Test;
 use Dabble\Adapter\Sqlite;
 
 /**
- * @Description Tests for SQLite
+ * @Feature Tests for SQLite
  */
 class SqliteTest
 {
