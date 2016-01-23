@@ -2,22 +2,25 @@
 
 namespace Dabble\Test;
 
+use Dabble\Adapter;
+use Dabble\Query\DeleteException;
+
 trait DeleteTest
 {
-    public function testDelete()
+    /**
+     * @Description {0}::delete should delete a row
+     */
+    public function testDelete(Adapter $db, $table = 'test', $where = ['id' => 1])
     {
-        $db = $this->getConnection()->getConnection();
-        $affectedRows = $db->delete('test', ['id' => 1]);
-        $this->assertEquals(1, (int)$affectedRows);
+        return 1;
     }
     
     /**
-     * @expectedException Dabble\Query\DeleteException
+     * @Description {0}::delete should throw an exception if nothing was deleted
      */
-    public function testNoDelete()
+    public function testNoDelete(Adapter $db, $table = 'test', $where = ['id' => 12345])
     {
-        $db = $this->getConnection()->getConnection();
-        $db->delete('test', ['id' => 12345]);
+        return new DeleteException;
     }
 }
 
