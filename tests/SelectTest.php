@@ -13,7 +13,7 @@ trait SelectTest
     /**
      * @Scenario {0}::select should return 3 rows when called with no where
      */
-    public function testSelects(Adapter &$db = null, $table = 'test', $fields = '*')
+    public function testSelects(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
         $db = $this->db;
         return function ($result) {
@@ -35,9 +35,9 @@ trait SelectTest
     {
         $db = $this->db;
         return [
-            'id' => 1,
+            'id' => "1",
             'name' => 'foo',
-            'status' => 15,
+            'status' => "15",
             'datecreated' => '2015-03-20 10:00:00',
         ];
     }
