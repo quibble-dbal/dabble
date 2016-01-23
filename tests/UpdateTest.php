@@ -5,21 +5,26 @@ namespace Dabble\Test;
 use Dabble\Adapter;
 use Dabble\Query\UpdateException;
 
+/**
+ * @Feature Updating
+ */
 trait UpdateTest
 {
     /**
-     * @Description {0}::update should update a row
+     * @Scenario {0}::update should update a row
      */
-    public function testUpdate(Adapter $db, $table = 'test', $values = ['name' => 'douglas'], $where = ['id' => 1])
+    public function testUpdate(Adapter &$db = null, $table = 'test', $values = ['name' => 'douglas'], $where = ['id' => 1])
     {
+        $db = $this->db;
         return 1;
     }
 
     /**
-     * @Description {0}::update should throw an exception if nothing was updated
+     * @Scenario {0}::update should throw an exception if nothing was updated
      */
-    public function testNoUpdate(Adapter $db, $table = 'test', $values = ['name' => 'adams'], $where = ['id' => 12345])
+    public function testNoUpdate(Adapter &$db = null, $table = 'test', $values = ['name' => 'adams'], $where = ['id' => 12345])
     {
+        $db = $this->db;
         throw new UpdateException;
     }
 }
