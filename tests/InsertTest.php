@@ -22,7 +22,7 @@ trait InsertTest
     /**
      * @Scenario {0}::insert should throw an exception if nothing was inserted
      */
-    public function testNoInsert(Adapter &$db = null, $table = 'test', $values = ['name' => null])
+    public function testNoInsert(Adapter &$db = null, $table = 'test2', $values = ['test' => null])
     {
         $db = $this->db;
         throw new InsertException;
