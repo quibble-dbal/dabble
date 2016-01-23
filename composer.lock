@@ -4,22 +4,22 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "06d33336d23eea3459ff4bf97a60cf18",
-    "content-hash": "aa0282e3bfe153fa632aa5073c24d2ca",
+    "hash": "46f70c55a84bcf4a109be59c4e16e6b5",
+    "content-hash": "79fbea77db25225225252a71258213ab",
     "packages": [],
     "packages-dev": [
         {
             "name": "monomelodies/gentry",
-            "version": "dev-master",
+            "version": "0.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/monomelodies/gentry.git",
-                "reference": "92664bb3530e93f971b2f31625423c4fdbae0efe"
+                "reference": "68da6ecb82d74d729f8bb0625e4a246817656718"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/monomelodies/gentry/zipball/92664bb3530e93f971b2f31625423c4fdbae0efe",
-                "reference": "92664bb3530e93f971b2f31625423c4fdbae0efe",
+                "url": "https://api.github.com/repos/monomelodies/gentry/zipball/68da6ecb82d74d729f8bb0625e4a246817656718",
+                "reference": "68da6ecb82d74d729f8bb0625e4a246817656718",
                 "shasum": ""
             },
             "require": {
@@ -47,7 +47,7 @@
                 }
             ],
             "description": "PHP unit test generation tools",
-            "time": "2016-01-22 11:42:41"
+            "time": "2016-01-23 11:19:29"
         },
         {
             "name": "monomelodies/kingconf",
@@ -237,9 +237,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "monomelodies/gentry": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
