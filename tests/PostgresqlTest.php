@@ -22,5 +22,11 @@ class PostgresqlTest
             'test'
         );
     }
+
+    public function __wakeup()
+    {
+        $file = realpath(__DIR__.'/files/postgresql.sql');
+        shell_exec("psql -U dabble -d dabble_test < $file 2>/dev/null");
+    }
 }
 
