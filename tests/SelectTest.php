@@ -13,6 +13,9 @@ trait SelectTest
     public function testSelects(Adapter $db, $table = 'test', $fields = '*')
     {
         return function ($result) {
+            if (!$result) {
+                return false;
+            }
             $test = [];
             foreach ($result() as $row) {
                 $test[] = (int)$row['id'];
