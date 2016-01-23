@@ -5,21 +5,26 @@ namespace Dabble\Test;
 use Dabble\Adapter;
 use Dabble\Query\DeleteException;
 
+/**
+ * @Feature Deletion
+ */
 trait DeleteTest
 {
     /**
-     * @Description {0}::delete should delete a row
+     * @Scenario {0}::delete should delete a row
      */
-    public function testDelete(Adapter $db, $table = 'test', $where = ['id' => 1])
+    public function testDelete(Adapter &$db = null, $table = 'test', $where = ['id' => 1])
     {
+        $db = $this->db;
         return 1;
     }
     
     /**
-     * @Description {0}::delete should throw an exception if nothing was deleted
+     * @Scenario {0}::delete should throw an exception if nothing was deleted
      */
-    public function testNoDelete(Adapter $db, $table = 'test', $where = ['id' => 12345])
+    public function testNoDelete(Adapter &$db = null, $table = 'test', $where = ['id' => 12345])
     {
+        $db = $this->db;
         return new DeleteException;
     }
 }
