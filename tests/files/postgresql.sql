@@ -17,9 +17,9 @@ CREATE TABLE test2 (
 );
 
 INSERT INTO test VALUES
-    (1, 'foo', 15, '2015-03-20 10:00:00 GMT'),
-    (2, 'bar', 11, '1978-07-13 12:42:42 GMT'),
-    (3,	NULL, 0, '2000-01-01 00:00:00 GMT');
+    (1, 'foo', 15, '2015-03-20 10:00:00 Europe/Amsterdam'),
+    (2, 'bar', 11, '1978-07-13 12:42:42 Europe/Amsterdam'),
+    (3,	NULL, 0, '2000-01-01 00:00:00 Europe/Amsterdam');
 
 CREATE INDEX test2_test_key ON test2 USING btree (test);
 CREATE INDEX test_datecreated_key ON test USING btree (datecreated);
