@@ -4,6 +4,7 @@ namespace Dabble\Test;
 
 use Dabble\Adapter;
 use Dabble\Query\SelectException;
+use Carbon\Carbon;
 
 /**
  * @Feature Selecting
@@ -38,7 +39,7 @@ trait SelectTest
             'id' => "1",
             'name' => 'foo',
             'status' => "15",
-            'datecreated' => '2015-03-20 10:00:00',
+            'datecreated' => new Carbon('2015-03-20 10:00:00'),
         ];
     }
 
