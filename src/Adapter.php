@@ -5,7 +5,7 @@
  *
  * @package Dabble
  * @author Marijn Ophorst <marijn@monomelodies.nl>
- * @copyright MonoMelodies 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+ * @copyright MonoMelodies 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
  */
 
 namespace Dabble;
@@ -19,6 +19,7 @@ use Dabble\Query\Delete;
 use Dabble\Query\Count;
 use Dabble\Query\SelectException;
 use Dabble\Query\Raw;
+use Dabble\Query\Normalize;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -28,6 +29,7 @@ abstract class Adapter extends PDO
     use Query\Value {
         Query\Value::value as _value;
     }
+    use Normalize;
 
     /**
      * Constants for aiding in interval statements.
@@ -73,7 +75,7 @@ abstract class Adapter extends PDO
      * without necessarily worrying about overhead (e.g. lots of related sites).
      *
      * @throws Dabble\Adapter\ConnectionFailedException if the database is
-     *                                                  unavailable.
+     *  unavailable.
      */
     public function connect()
     {
@@ -152,9 +154,10 @@ abstract class Adapter extends PDO
         return parent::lastInsertId($name);
     }
 
-    public function prepare($statement, array $driver_options = [])
+    public function prepare($statement, $driver_options = null)
     {
         $this->connect();
+        $driver_options = $driver_options ?: [];
         return parent::prepare($statement, $driver_options);
     }
 
@@ -251,6 +254,7 @@ abstract class Adapter extends PDO
         if (!$results) {
             throw new SelectException($stmt->queryString);
         }
+        array_walk($results, [$this, 'normalize']);
         return $results;
     }
 
@@ -290,11 +294,12 @@ abstract class Adapter extends PDO
      */
     public function column($table, $field, $where = null, $options = null)
     {
-        return array_shift($this->fetch($table, $field, $where, $options));
+        $results = $this->fetch($table, $field, $where, $options);
+        return array_shift($results);
     }
 
     /**
-     * Alias for Dabble\Adapter::column for consitency with PDO.
+     * Alias for Dabble\Adapter::column for consistency with PDO.
      */
     public function fetchColumn($table, $field, $where = null, $options = null)
     {
@@ -311,7 +316,7 @@ abstract class Adapter extends PDO
      * @param array $where An SQL where-array.
      * @param array $options Array of options.
      * @return mixed An object of the desired class initialized with the row's
-     *               values.
+     *  values.
      * @throws Dabble\Query\SelectException when no row was found.
      * @throws Dabble\Query\SqlException on error.
      */
@@ -423,12 +428,9 @@ abstract class Adapter extends PDO
         return $statement->fetchColumn();
     }
 
-    public function now($string = false)
+    public function now()
     {
-        if (!$string) {
-            return new Raw('NOW()');
-        }
-        return 'NOW()';
+        return new Raw('NOW()');
     }
 
     public function datenull()

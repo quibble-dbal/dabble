@@ -6,7 +6,7 @@
  * @package Dabble
  * @subpackage Query;
  * @author Marijn Ophorst <marijn@monomelodies.nl>
- * @copyright MonoMelodies 2015
+ * @copyright MonoMelodies 2015, 2016
  */
 
 namespace Dabble\Query;
@@ -20,6 +20,8 @@ use ArrayObject;
 
 class Select extends Query
 {
+    use Normalize;
+
     protected $fields;
     protected $where;
     protected $options;

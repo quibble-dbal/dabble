@@ -1,21 +1,31 @@
 <?php
 
+namespace Dabble\Test;
+
+use Dabble\Adapter;
+use Dabble\Query\UpdateException;
+
+/**
+ * @Feature Updating
+ */
 trait UpdateTest
 {
-    public function testUpdate()
+    /**
+     * @Scenario {0}::update should update a row
+     */
+    public function testUpdate(Adapter &$db = null, $table = 'test', $values = ['name' => 'douglas'], $where = ['id' => 1])
     {
-        $db = $this->getConnection()->getConnection();
-        $affectedRows = $db->update('test', ['name' => 'douglas'], ['id' => 1]);
-        $this->assertEquals(1, (int)$affectedRows);
+        $db = $this->db;
+        return 1;
     }
 
     /**
-     * @expectedException Dabble\Query\UpdateException
+     * @Scenario {0}::update should throw an exception if nothing was updated
      */
-    public function testNoUpdate()
+    public function testNoUpdate(Adapter &$db = null, $table = 'test', $values = ['name' => 'adams'], $where = ['id' => 12345])
     {
-        $db = $this->getConnection()->getConnection();
-        $db->update('test', ['name' => 'adams'], ['id' => 12345]);
+        $db = $this->db;
+        throw new UpdateException;
     }
 }
 

@@ -31,12 +31,12 @@ class Sqlite extends Adapter
         );
     }
 
-    public function value($value, &$bind)
+    public function value($value)
     {
         if (is_bool($value)) {
             return $value ? 1 : 0;
         }
-        return parent::value($value, $bind);
+        return parent::value($value);
     }
 
     public function interval($quantity, $amount)

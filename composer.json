@@ -10,15 +10,20 @@
         }
     ],
     "require": {
-        "php": ">=5.4"
+        "php": ">=5.4",
+        "nesbot/carbon": "^1.21"
     },
     "require-dev": {
-        "phpunit/phpunit": ">=4.0",
-        "phpunit/dbunit": ">=1.2"
+        "monomelodies/gentry": "^0.3.3"
     },
     "autoload": {
         "psr-4": {
             "Dabble\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Dabble\\Test\\": "tests"
         }
     }
 }

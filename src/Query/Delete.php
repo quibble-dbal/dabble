@@ -6,7 +6,7 @@
  * @package Dabble
  * @subpackage Query
  * @author Marijn Ophorst <marijn@monomelodies.nl>
- * @copyright MonoMelodies 2015
+ * @copyright MonoMelodies 2015, 2016
  */
 
 namespace Dabble\Query;
@@ -37,12 +37,12 @@ class Delete extends Query
     public function execute()
     {
         $stmt = parent::execute();
-        if (!(($affectedRows = $stmt->rowCount()) && $affectedRows)) {
-            $info = $stmt->errorInfo();
-            $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $this";
-            throw new DeleteException($this->error($msg, $this->bound));
+        if ($affectedRows = $stmt->rowCount() and $affectedRows) {
+            return $affectedRows;
         }
-        return $affectedRows;
+        $info = $stmt->errorInfo();
+        $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $this";
+        throw new DeleteException($this->error($msg, $this->bound));
     }
 
     public function __toString()

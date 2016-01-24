@@ -1,42 +1,67 @@
 <?php
 
+namespace Dabble\Test;
+
+use Dabble\Adapter;
+use Dabble\Query\SelectException;
+use Carbon\Carbon;
+
+/**
+ * @Feature Selecting
+ */
 trait SelectTest
 {
-    public function testSelects()
+    /**
+     * @Scenario {0}::select should return 3 rows when called with no where
+     */
+    public function testSelects(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
-        $db = $this->getConnection()->getConnection();
-        $result = $db->select('test', '*');
-        $test = [];
-        foreach ($result() as $row) {
-            $test[] = (int)$row['id'];
-        }
-        $this->assertEquals([1, 2, 3], $test);
-
-        // Re-query should also work, yielding a new result set:
-        $result = $db->select('test', '*', [], ['order' => 'id']);
-        $test = [];
-        foreach ($result() as $row) {
-            $test[] = (int)$row['id'];
-        }
-        $this->assertEquals([1, 2, 3], $test);
-
-        $db = $this->getConnection()->getConnection();
-        $result = $db->fetch('test', '*', [], ['order' => 'id']);
-        $this->assertEquals(1, (int)$result['id']);
-
-        $result = $db->column('test', 'id', [], ['order' => 'id']);
-        $this->assertEquals(1, (int)$result);
+        $db = $this->db;
+        return function ($result) {
+            if (!$result) {
+                return false;
+            }
+            $test = [];
+            foreach ($result() as $row) {
+                $test[] = (int)$row['id'];
+            }
+            return $test == [1, 2, 3];
+        };
     }
 
     /**
-     * @expectedException Dabble\Query\SelectException
+     * @Scenario {0}::fetch should return just the first row
      */
-    public function testNoResults()
+    public function testFetch(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
-        $db = $this->getConnection()->getConnection();
-        $db->select('test', '*', ['id' => 12345]);
+        $db = $this->db;
+        return [
+            'id' => "1",
+            'name' => 'foo',
+            'status' => "15",
+            'datecreated' => new Carbon('2015-03-20 10:00:00'),
+        ];
     }
 
+    /**
+     * @Scenario {0}::column should return just a single column
+     */
+    public function testColumn(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
+    {
+        $db = $this->db;
+        return 1;
+    }
+
+    /**
+     * @Scenario For no results, {0}::select should throw an exception
+     */
+    public function testNoResults(Adapter &$db = null, $table = 'test', $fields = '*', $where = ['id' => 12345])
+    {
+        $db = $this->db;
+        throw new SelectException;
+    }
+
+    /*
     public function testCount()
     {
         $db = $this->getConnection()->getConnection();
@@ -74,5 +99,6 @@ trait SelectTest
         );
         $this->assertEquals('foo', $row['name']);
     }
+    */
 }
 
