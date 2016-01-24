@@ -5,7 +5,7 @@
  *
  * @package Dabble
  * @author Marijn Ophorst <marijn@monomelodies.nl>
- * @copyright MonoMelodies 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015
+ * @copyright MonoMelodies 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
  */
 
 namespace Dabble;
@@ -19,6 +19,7 @@ use Dabble\Query\Delete;
 use Dabble\Query\Count;
 use Dabble\Query\SelectException;
 use Dabble\Query\Raw;
+use Dabble\Query\Normalize;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -28,6 +29,7 @@ abstract class Adapter extends PDO
     use Query\Value {
         Query\Value::value as _value;
     }
+    use Normalize;
 
     /**
      * Constants for aiding in interval statements.
@@ -252,6 +254,7 @@ abstract class Adapter extends PDO
         if (!$results) {
             throw new SelectException($stmt->queryString);
         }
+        array_walk($results, [$this, 'normalize']);
         return $results;
     }
 
