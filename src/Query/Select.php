@@ -20,6 +20,8 @@ use ArrayObject;
 
 class Select extends Query
 {
+    use Normalize;
+
     protected $fields;
     protected $where;
     protected $options;
