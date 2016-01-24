@@ -16,15 +16,15 @@ CREATE TABLE test2 (
     data character varying(255)
 );
 
-INSERT INTO test VALUES
-    (1, 'foo', 15, '2015-03-20 10:00:00 Europe/Amsterdam'),
-    (2, 'bar', 11, '1978-07-13 12:42:42 Europe/Amsterdam'),
-    (3,	NULL, 0, '2000-01-01 00:00:00 Europe/Amsterdam');
+INSERT INTO test (name, status, datecreated) VALUES 
+    ('foo', 15, '2015-03-20 10:00:00 Europe/Amsterdam'),
+    ('bar', 11, '1978-07-13 12:42:42 Europe/Amsterdam'),
+    (NULL, 0, '2000-01-01 00:00:00 Europe/Amsterdam');
 
 CREATE INDEX test2_test_key ON test2 USING btree (test);
 CREATE INDEX test_datecreated_key ON test USING btree (datecreated);
 CREATE UNIQUE INDEX test_name_key ON test USING btree (name);
 CREATE INDEX test_status_key ON test USING btree (status);
 
-INSERT INTO test2 VALUES (1, 1, 'lorem ipsum');
+INSERT INTO test2 (test, data) VALUES (1, 'lorem ipsum');
 
