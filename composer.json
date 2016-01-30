@@ -14,7 +14,7 @@
         "nesbot/carbon": "^1.21"
     },
     "require-dev": {
-        "monomelodies/gentry": "^0.3.3"
+        "monomelodies/gentry": "^0.5.0"
     },
     "autoload": {
         "psr-4": {
