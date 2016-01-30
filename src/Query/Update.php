@@ -45,7 +45,7 @@ class Update extends Query
         }
         $info = $stmt->errorInfo();
         $msg = "{$info[0]} / {$info[1]}: {$info[2]} - $this";
-        throw new UpdateException($this->error($msg, $this->bound), 1);
+        throw new UpdateException($this->error($msg, $this->bound));
     }
 
     public function __toString()
