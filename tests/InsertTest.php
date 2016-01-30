@@ -6,26 +6,26 @@ use Dabble\Adapter;
 use Dabble\Query\InsertException;
 
 /**
- * @Feature Insertions
+ * Insertions
  */
 trait InsertTest
 {
     /**
-     * @Scenario {0}::insert should insert a new row
+     * {0}::insert should insert a new row
      */
     public function testInsert(Adapter &$db = null, $table = 'test', $values = ['name' => 'monomelodies'])
     {
         $db = $this->db;
-        return 1;
+        yield 1;
     }
 
     /**
-     * @Scenario {0}::insert should throw an exception if nothing was inserted
+     * {0}::insert should throw an exception if nothing was inserted
      */
     public function testNoInsert(Adapter &$db = null, $table = 'test2', $values = ['test' => null])
     {
         $db = $this->db;
-        throw new InsertException;
+        yield new InsertException;
     }
 }
 

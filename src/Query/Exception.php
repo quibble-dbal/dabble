@@ -2,9 +2,13 @@
 
 namespace Dabble\Query;
 
-use Dabble;
+use PDOException;
 
-abstract class Exception extends Dabble\Exception
+abstract class Exception extends PDOException
 {
+    const PREPARATION = 1;
+    const EXECUTION = 2;
+    const EMPTYRESULT = 3;
+    const NOAFFECTEDROWS = 4;
 }
 

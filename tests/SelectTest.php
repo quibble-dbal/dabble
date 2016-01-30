@@ -3,21 +3,21 @@
 namespace Dabble\Test;
 
 use Dabble\Adapter;
-use Dabble\Query\SelectException;
+use Dabble\Query;
 use Carbon\Carbon;
 
 /**
- * @Feature Selecting
+ * Selecting
  */
 trait SelectTest
 {
     /**
-     * @Scenario {0}::select should return 3 rows when called with no where
+     * {0}::select should yield 3 rows when called with no where
      */
     public function testSelects(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
         $db = $this->db;
-        return function ($result) {
+        yield function ($result) {
             if (!$result) {
                 return false;
             }
@@ -30,12 +30,12 @@ trait SelectTest
     }
 
     /**
-     * @Scenario {0}::fetch should return just the first row
+     * {0}::fetch should yield just the first row
      */
     public function testFetch(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
         $db = $this->db;
-        return [
+        yield [
             'id' => "1",
             'name' => 'foo',
             'status' => "15",
@@ -44,61 +44,64 @@ trait SelectTest
     }
 
     /**
-     * @Scenario {0}::column should return just a single column
+     * {0}::column should yield just a single column
      */
     public function testColumn(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
         $db = $this->db;
-        return 1;
+        yield 1;
     }
 
     /**
-     * @Scenario For no results, {0}::select should throw an exception
+     * For no results, {0}::select should throw an exception
      */
     public function testNoResults(Adapter &$db = null, $table = 'test', $fields = '*', $where = ['id' => 12345])
     {
         $db = $this->db;
-        throw new SelectException;
+        yield new Query\SelectException;
     }
 
-    /*
-    public function testCount()
+    /**
+     * {0}::count should return 3 for the 'test' table.
+     */
+    public function testCount(Adapter &$db = null, $table = 'test')
     {
-        $db = $this->getConnection()->getConnection();
-        $cnt = $db->count('test');
-        $this->assertEquals(3, (int)$cnt);
+        $db = $this->db;
+        yield 3;
     }
 
-    public function testAll()
+    /**
+     * {0}::fetchAll should return 3 rows for the 'test' table.
+     */
+    public function testAll(Adapter &$db = null, $table = 'test', $fields = '*')
     {
-        $db = $this->getConnection()->getConnection();
-        $rows = $db->fetchAll('test', '*');
-        $this->assertEquals(3, count($rows));
+        $db = $this->db;
+        yield 'count' => 3;
     }
 
-    public function testAlias()
+    /**
+     * {0}::fetch should correctly alias a column.
+     */
+    public function testAlias(Adapter &$db = null, $table = 'test', $fields = ['foo' => 'name'], $where = ['id' => 1])
     {
-        $db = $this->getConnection()->getConnection();
-        $row = $db->fetch('test', ['foo' => 'name'], ['id' => 1]);
-        $this->assertEquals('foo', $row['foo']);
+        $db = $this->db;
+        yield ['foo' => 'foo'];
     }
 
-    public function testSubquery()
+    /**
+     * {0}::fetch should be able to handle a subquery.
+     */
+    public function testSubquery(Adapter &$db = null, $table = 'test', $fields = 'name', &$where = [])
     {
-        $db = $this->getConnection()->getConnection();
-        $row = $db->fetch(
-            'test',
-            '*',
-            ['id' => new Dabble\Query\Select(
-                $db,
-                'test2',
-                ['test'],
-                new Dabble\Query\Where(['data' => 'lorem ipsum']),
-                new Dabble\Query\Options
-            )]
-        );
-        $this->assertEquals('foo', $row['name']);
+        $db = $this->db;
+        $where = ['id' => new Query\Select(
+            $db,
+            'test2',
+            ['test'],
+            new Query\Where(['data' => 'lorem ipsum']),
+            new Query\Options
+        )];
+        yield ['name' => 'foo'];
     }
-    */
 }
 
