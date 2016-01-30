@@ -29,7 +29,18 @@ abstract class Query implements Bindable
     public function execute()
     {
         $stmt = $this->statement();
-        $stmt->execute($this->bound);
+        try {
+            $stmt->execute($this->bound);
+        } catch (PDOException $e) {
+            throw new SqlException(
+                $this->error(
+                    "Error in $this: {$e->errorInfo[2]}\n\nParameters:\n",
+                    $this->bound
+                ),
+                SqlException::EXECUTION,
+                $e
+            );
+        }
         return $stmt;
     }
 
@@ -49,7 +60,7 @@ abstract class Query implements Bindable
                     "Error in $this: {$e->errorInfo[2]}\n\nParamaters:\n",
                     $this->bound
                 ),
-                3,
+                SqlException::PREPARATION,
                 $e
             );
         }
@@ -66,7 +77,7 @@ abstract class Query implements Bindable
     }
 
     /**
-     * Internal helper to correctly formate error messages.
+     * Internal helper to correctly format error messages.
      *
      * @param string $msg The original error message.
      * @param array $bind Array of bound values.
