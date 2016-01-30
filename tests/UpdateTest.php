@@ -6,26 +6,26 @@ use Dabble\Adapter;
 use Dabble\Query\UpdateException;
 
 /**
- * @Feature Updating
+ * Updating
  */
 trait UpdateTest
 {
     /**
-     * @Scenario {0}::update should update a row
+     * {0}::update should update a row
      */
     public function testUpdate(Adapter &$db = null, $table = 'test', $values = ['name' => 'douglas'], $where = ['id' => 1])
     {
         $db = $this->db;
-        return 1;
+        yield 1;
     }
 
     /**
-     * @Scenario {0}::update should throw an exception if nothing was updated
+     * {0}::update should throw an exception if nothing was updated
      */
     public function testNoUpdate(Adapter &$db = null, $table = 'test', $values = ['name' => 'adams'], $where = ['id' => 12345])
     {
         $db = $this->db;
-        throw new UpdateException;
+        yield new UpdateException;
     }
 }
 

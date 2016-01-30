@@ -7,17 +7,17 @@ use Dabble\Query\SelectException;
 use Carbon\Carbon;
 
 /**
- * @Feature Selecting
+ * Selecting
  */
 trait SelectTest
 {
     /**
-     * @Scenario {0}::select should return 3 rows when called with no where
+     * {0}::select should yield 3 rows when called with no where
      */
     public function testSelects(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
         $db = $this->db;
-        return function ($result) {
+        yield function ($result) {
             if (!$result) {
                 return false;
             }
@@ -30,12 +30,12 @@ trait SelectTest
     }
 
     /**
-     * @Scenario {0}::fetch should return just the first row
+     * {0}::fetch should yield just the first row
      */
     public function testFetch(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
         $db = $this->db;
-        return [
+        yield [
             'id' => "1",
             'name' => 'foo',
             'status' => "15",
@@ -44,21 +44,21 @@ trait SelectTest
     }
 
     /**
-     * @Scenario {0}::column should return just a single column
+     * {0}::column should yield just a single column
      */
     public function testColumn(Adapter &$db = null, $table = 'test', $fields = '*', $where = [], $options = ['order' => 'id'])
     {
         $db = $this->db;
-        return 1;
+        yield 1;
     }
 
     /**
-     * @Scenario For no results, {0}::select should throw an exception
+     * For no results, {0}::select should throw an exception
      */
     public function testNoResults(Adapter &$db = null, $table = 'test', $fields = '*', $where = ['id' => 12345])
     {
         $db = $this->db;
-        throw new SelectException;
+        yield new SelectException;
     }
 
     /*

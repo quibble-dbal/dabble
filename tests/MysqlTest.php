@@ -5,7 +5,7 @@ namespace Dabble\Test;
 use Dabble\Adapter\Mysql;
 
 /**
- * @Feature Tests for MySQL
+ * Tests for MySQL
  */
 class MysqlTest
 {
