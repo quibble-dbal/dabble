@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "95c874f21002ac6c108b4b908445b97b",
-    "content-hash": "a7103a057bf42216dd2dca111bf9b0c7",
+    "hash": "b0df06904125011ea09db1be014957d0",
+    "content-hash": "595191edaad71a2bb311de6fb5bc1f75",
     "packages": [
         {
             "name": "nesbot/carbon",
@@ -56,16 +56,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.0.1",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "49ff736bd5d41f45240cec77b44967d76e0c3d25"
+                "reference": "1289d16209491b584839022f29257ad859b8532d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/49ff736bd5d41f45240cec77b44967d76e0c3d25",
-                "reference": "49ff736bd5d41f45240cec77b44967d76e0c3d25",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/1289d16209491b584839022f29257ad859b8532d",
+                "reference": "1289d16209491b584839022f29257ad859b8532d",
                 "shasum": ""
             },
             "require": {
@@ -77,7 +77,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev"
+                    "dev-master": "1.1-dev"
                 }
             },
             "autoload": {
@@ -111,7 +111,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2015-11-20 09:19:13"
+            "time": "2016-01-20 09:13:37"
         },
         {
             "name": "symfony/translation",
@@ -181,16 +181,16 @@
     "packages-dev": [
         {
             "name": "monomelodies/gentry",
-            "version": "0.3.6",
+            "version": "0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/monomelodies/gentry.git",
-                "reference": "2bd8023da923c2dc62c82b9594005d5d21857e7e"
+                "reference": "98239236a1444e45fa138509d129a2508534a1af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/monomelodies/gentry/zipball/2bd8023da923c2dc62c82b9594005d5d21857e7e",
-                "reference": "2bd8023da923c2dc62c82b9594005d5d21857e7e",
+                "url": "https://api.github.com/repos/monomelodies/gentry/zipball/98239236a1444e45fa138509d129a2508534a1af",
+                "reference": "98239236a1444e45fa138509d129a2508534a1af",
                 "shasum": ""
             },
             "require": {
@@ -218,7 +218,7 @@
                 }
             ],
             "description": "PHP unit test generation tools",
-            "time": "2016-01-24 10:27:56"
+            "time": "2016-01-30 09:20:35"
         },
         {
             "name": "monomelodies/kingconf",
