@@ -3,7 +3,7 @@
 namespace Dabble\Test;
 
 use Dabble\Adapter;
-use Dabble\Query\SelectException;
+use Dabble\Query;
 use Carbon\Carbon;
 
 /**
@@ -58,47 +58,50 @@ trait SelectTest
     public function testNoResults(Adapter &$db = null, $table = 'test', $fields = '*', $where = ['id' => 12345])
     {
         $db = $this->db;
-        yield new SelectException;
+        yield new Query\SelectException;
     }
 
-    /*
-    public function testCount()
+    /**
+     * {0}::count should return 3 for the 'test' table.
+     */
+    public function testCount(Adapter &$db = null, $table = 'test')
     {
-        $db = $this->getConnection()->getConnection();
-        $cnt = $db->count('test');
-        $this->assertEquals(3, (int)$cnt);
+        $db = $this->db;
+        yield 3;
     }
 
-    public function testAll()
+    /**
+     * {0}::fetchAll should return 3 rows for the 'test' table.
+     */
+    public function testAll(Adapter &$db = null, $table = 'test', $fields = '*')
     {
-        $db = $this->getConnection()->getConnection();
-        $rows = $db->fetchAll('test', '*');
-        $this->assertEquals(3, count($rows));
+        $db = $this->db;
+        yield 'count' => 3;
     }
 
-    public function testAlias()
+    /**
+     * {0}::fetch should correctly alias a column.
+     */
+    public function testAlias(Adapter &$db = null, $table = 'test', $fields = ['foo' => 'name'], $where = ['id' => 1])
     {
-        $db = $this->getConnection()->getConnection();
-        $row = $db->fetch('test', ['foo' => 'name'], ['id' => 1]);
-        $this->assertEquals('foo', $row['foo']);
+        $db = $this->db;
+        yield ['foo' => 'foo'];
     }
 
-    public function testSubquery()
+    /**
+     * {0}::fetch should be able to handle a subquery.
+     */
+    public function testSubquery(Adapter &$db = null, $table = 'test', $fields = 'name', &$where = [])
     {
-        $db = $this->getConnection()->getConnection();
-        $row = $db->fetch(
-            'test',
-            '*',
-            ['id' => new Dabble\Query\Select(
-                $db,
-                'test2',
-                ['test'],
-                new Dabble\Query\Where(['data' => 'lorem ipsum']),
-                new Dabble\Query\Options
-            )]
-        );
-        $this->assertEquals('foo', $row['name']);
+        $db = $this->db;
+        $where = ['id' => new Query\Select(
+            $db,
+            'test2',
+            ['test'],
+            new Query\Where(['data' => 'lorem ipsum']),
+            new Query\Options
+        )];
+        yield ['name' => 'foo'];
     }
-    */
 }
 
