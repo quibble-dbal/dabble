@@ -276,7 +276,7 @@ abstract class Adapter extends PDO
             $options['offset'] = 0;
         }
         $result = $this->select($table, $fields, $where, $options);
-        foreach ($result() as $row) {
+        foreach ($result as $row) {
             return $row;
         }
     }

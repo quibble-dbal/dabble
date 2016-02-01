@@ -1,6 +1,6 @@
 <?php
 
-return function () use ($stmt, &$first) {
+return call_user_func(function () use ($stmt, &$first) {
     if ($first) {
         $yield = $first;
         $first = false;
@@ -12,5 +12,5 @@ return function () use ($stmt, &$first) {
         yield $row;
     }
     return;
-};
+});
 

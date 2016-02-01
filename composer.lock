@@ -181,16 +181,16 @@
     "packages-dev": [
         {
             "name": "monomelodies/gentry",
-            "version": "0.5.0",
+            "version": "0.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/monomelodies/gentry.git",
-                "reference": "98239236a1444e45fa138509d129a2508534a1af"
+                "reference": "3d7d335335f8a5dca7a521ab3f1dfa2d18702ae9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/monomelodies/gentry/zipball/98239236a1444e45fa138509d129a2508534a1af",
-                "reference": "98239236a1444e45fa138509d129a2508534a1af",
+                "url": "https://api.github.com/repos/monomelodies/gentry/zipball/3d7d335335f8a5dca7a521ab3f1dfa2d18702ae9",
+                "reference": "3d7d335335f8a5dca7a521ab3f1dfa2d18702ae9",
                 "shasum": ""
             },
             "require": {
@@ -218,7 +218,7 @@
                 }
             ],
             "description": "PHP unit test generation tools",
-            "time": "2016-01-30 09:20:35"
+            "time": "2016-02-01 09:46:24"
         },
         {
             "name": "monomelodies/kingconf",

@@ -22,7 +22,7 @@ trait SelectTest
                 return false;
             }
             $test = [];
-            foreach ($result() as $row) {
+            foreach ($result as $row) {
                 $test[] = (int)$row['id'];
             }
             return $test == [1, 2, 3];

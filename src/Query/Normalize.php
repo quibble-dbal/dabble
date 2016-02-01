@@ -13,7 +13,7 @@ trait Normalize
                 array_walk($value, [$this, 'normalize']);
             } elseif (is_numeric($value)) {
                 $value = 0 + $value;
-            } elseif (false !== ($test = strtotime($value))) {
+            } elseif (preg_match('@^\d{4}-\d{2}-\d{2}@', $value)) {
                 $value = new Carbon($value);
             }
         }
