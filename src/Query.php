@@ -29,6 +29,11 @@ abstract class Query implements Bindable
     public function execute()
     {
         $stmt = $this->statement();
+        foreach ($this->bound as &$value) {
+            if (is_object($value) && method_exists($value, '__toString')) {
+                $value = "$value";
+            }
+        }
         try {
             $stmt->execute($this->bound);
         } catch (PDOException $e) {
