@@ -63,6 +63,11 @@ class Postgresql extends Adapter
         return sprintf("'%d %s'::interval", $amount, $what);
     }
 
+    public function lastInsertId($object = null)
+    {
+        return parent::lastInsertId("{$object}_id_seq");
+    }
+
     public function random()
     {
         return 'RANDOM()';
