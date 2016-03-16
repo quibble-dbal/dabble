@@ -3,6 +3,7 @@
 namespace Dabble\Query;
 
 use Carbon\Carbon;
+use Exception;
 
 trait Normalize
 {
@@ -14,7 +15,10 @@ trait Normalize
             } elseif (is_numeric($value)) {
                 $value = 0 + $value;
             } elseif (preg_match('@^\d{4}-\d{2}-\d{2}@', $value)) {
-                $value = new Carbon($value);
+                try {
+                    $value = new Carbon($value);
+                } catch (Exception $e) {
+                }
             }
         }
     }
