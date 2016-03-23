@@ -72,7 +72,8 @@ class Options implements Bindable
                         $tmp[] = $order;
                         continue;
                     }
-                    $dir = array_shift($dir = array_keys($order));
+                    $dir = array_keys($order);
+                    $dir = array_shift($dir);
                     $col = array_shift($order);
                     if (!is_array($col)) {
                         $col = [$col];
