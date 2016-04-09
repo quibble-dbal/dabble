@@ -2,6 +2,8 @@
 
 namespace Dabble\Query;
 
+use ArrayObject;
+
 trait Value
 {
     public function value($value)
