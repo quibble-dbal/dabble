@@ -1,0 +1,26 @@
+{
+    "name": "quibble/dabble",
+    "description": "DBAL for Quibble",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marijn Ophorst",
+            "email": "marijn@monomelodies.nl"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Quibble\\Dabble\\": "./src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Quibble\\Tests\\": "./tests"
+        }
+    },
+    "require-dev": {
+        "gentry/gentry": "^0.10.2"
+    }
+}
