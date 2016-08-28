@@ -16,8 +16,6 @@ use Quibble\Dabble\Select;
 use Quibble\Dabble\Insert;
 use Quibble\Dabble\Update;
 use Quibble\Dabble\Delete;
-use Quibble\Dabble\Count;
-use Quibble\Dabble\SelectException;
 use Quibble\Dabble\Raw;
 use PDO;
 use PDOException;
