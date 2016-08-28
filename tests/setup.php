@@ -4,6 +4,6 @@ use Quibble\Dabble\Adapter;
 
 global $adapter;
 
-$adapter = new class('sqlite:memory') extends Adapter {
+$adapter = new class('sqlite::memory') extends Adapter {
 };
 
