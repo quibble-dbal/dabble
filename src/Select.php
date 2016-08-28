@@ -49,7 +49,7 @@ class Select extends Query
     public function execute()
     {
         $stmt = parent::execute();
-        while (false !== $row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        while (false !== ($row = $stmt->fetch(PDO::FETCH_ASSOC))) {
             $this->normalize($row);
             yield $row;
         }
