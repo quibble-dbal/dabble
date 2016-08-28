@@ -219,7 +219,11 @@ abstract class Adapter extends PDO
             new Where($where),
             new Options($options)
         );
-        return $query->execute();
+        $res = $query->execute();
+        if (!$res->valid()) {
+            throw new SelectException("$query");
+        }
+        return $res;
     }
 
     /**
