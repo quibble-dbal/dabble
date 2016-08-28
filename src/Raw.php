@@ -1,6 +1,6 @@
 <?php
 
-namespace Monolyth\Dabble;
+namespace Quibble\Dabble;
 
 class Raw
 {
