@@ -10,10 +10,13 @@
 
 namespace Quibble\Dabble;
 
-/**
- * This is just a stub and shouldn't get thrown.
- */
-abstract class Exception extends \Exception
+use PDOException;
+
+abstract class Exception extends PDOException
 {
+    const PREPARATION = 1;
+    const EXECUTION = 2;
+    const EMPTYRESULT = 3;
+    const NOAFFECTEDROWS = 4;
 }
 
