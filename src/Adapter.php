@@ -19,15 +19,14 @@ use Monolyth\Dabble\Query\Delete;
 use Monolyth\Dabble\Query\Count;
 use Monolyth\Dabble\Query\SelectException;
 use Monolyth\Dabble\Query\Raw;
-use Monolyth\Dabble\Query\Normalize;
 use PDO;
 use PDOException;
 use PDOStatement;
 
 abstract class Adapter extends PDO
 {
-    use Query\Value {
-        Query\Value::value as _value;
+    use Value {
+        Value::value as _value;
     }
     use Normalize;
 
@@ -87,7 +86,7 @@ abstract class Adapter extends PDO
             parent::__construct($dsn, $username, $password, $options);
             $this->connected = true;
         } catch (PDOException $e) {
-            throw new Adapter\ConnectionFailedException($e->getMessage());
+            throw new ConnectionFailedException($e->getMessage());
         }
     }
 
