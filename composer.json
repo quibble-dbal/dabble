@@ -9,7 +9,9 @@
             "email": "marijn@monomelodies.nl"
         }
     ],
-    "require": {},
+    "require": {
+        "nesbot/carbon": "^1.21"
+    },
     "autoload": {
         "psr-4": {
             "Quibble\\Dabble\\": "./src"
