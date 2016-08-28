@@ -102,5 +102,14 @@ abstract class Query implements Bindable
     }
 
     public abstract function __toString();
+
+    public static function clearCache($id = null)
+    {
+        if (!isset($id)) {
+            self::$statementCache = [];
+        } else {
+            unset(self::$statementCache[$id]);
+        }
+    }
 }
 
