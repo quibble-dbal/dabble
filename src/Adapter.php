@@ -41,7 +41,7 @@ abstract class Adapter extends PDO
     const SECOND = 7;
     /** }}} */
 
-    protected $translevel = 0;
+    protected $transactionLevel = 0;
     private $connectionSettings = [];
     private $connected = false;
 
@@ -103,7 +103,7 @@ abstract class Adapter extends PDO
     public function beginTransaction()
     {
         $this->connect();
-        if (!$this->translevel++) {
+        if (!$this->transactionLevel++) {
             return parent::beginTransaction();
         }
     }
@@ -111,7 +111,7 @@ abstract class Adapter extends PDO
     public function commit()
     {
         $this->connect();
-        if ($this->translevel-- == 1) {
+        if ($this->transactionLevel-- == 1) {
             return parent::commit();
         }
     }
@@ -142,7 +142,7 @@ abstract class Adapter extends PDO
 
     public function inTransaction()
     {
-        return $this->translavel;
+        return $this->transactionLevel;
     }
 
     public function lastInsertId($name = null)
@@ -176,7 +176,7 @@ abstract class Adapter extends PDO
     public function rollback()
     {
         $this->connect();
-        if ($this->translevel-- == 1) {
+        if ($this->transactionLevel-- == 1) {
             return parent::rollback();
         }
     }
