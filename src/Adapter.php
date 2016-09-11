@@ -23,19 +23,6 @@ use PDOStatement;
 
 abstract class Adapter extends PDO
 {
-    /**
-     * Constants for aiding in interval statements.
-     * {{{
-     */
-    const YEAR = 1;
-    const MONTH = 2;
-    const WEEK = 3;
-    const DAY = 4;
-    const HOUR = 5;
-    const MINUTE = 6;
-    const SECOND = 7;
-    /** }}} */
-
     protected $transactionLevel = 0;
     private $connectionSettings = [];
     private $connected = false;
@@ -188,6 +175,6 @@ abstract class Adapter extends PDO
 
     public abstract function random() : Raw;
 
-    public abstract function interval($offset, $unit, $amount) : Raw;
+    public abstract function interval($unit, $amount) : Raw;
 }
 
