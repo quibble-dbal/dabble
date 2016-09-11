@@ -17,12 +17,9 @@ $adapter = new class('sqlite::memory:') extends Dabble\Adapter {
         return new Dabble\Raw('RANDOM()');
     }
 
-    public function interval($offset, $unit, $amount) : Dabble\Raw
+    public function interval($unit, $amount) : Dabble\Raw
     {
-        if ($offset instanceof Dabble\Now) {
-            $offset = "'now'";
-        }
-        return new Dabble\Raw("datetime($offset, '$unit {$amount}s");
+        return new Dabble\Raw("datetime('now', '$unit {$amount}s");
     }
 
 };
