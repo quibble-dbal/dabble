@@ -51,7 +51,6 @@ abstract class Adapter extends PDO
         $password = null,
         array $options = []
     ) {
-        $options[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
         $this->connectionSettings = compact(
             'dsn',
             'username',
@@ -203,7 +202,7 @@ abstract class Adapter extends PDO
      * @param mixed $fields The field (column) to query.
      * @param mixed $where The where-clause.
      * @param mixed $options The options (limit, offset etc.).
-     * @return function A lambda allowing you to access the found rows.
+     * @return Generator A Generator allowing you to access the found rows.
      * @throws Quibble\Dabble\SelectException when no rows found.
      * @throws Quibble\Dabble\SqlException on error.
      */
