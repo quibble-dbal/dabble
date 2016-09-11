@@ -171,7 +171,7 @@ abstract class Adapter extends PDO
      * }}}
      */
 
-    public abstract function now() : Raw;
+    public abstract function now() : Now;
 
     public abstract function random() : Raw;
 
