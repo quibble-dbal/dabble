@@ -184,14 +184,10 @@ abstract class Adapter extends PDO
      * }}}
      */
 
-    public function now()
-    {
-        return new Raw('NOW()');
-    }
+    public abstract function now() : Raw;
 
-    public function datenull()
-    {
-        return null;
-    }
+    public abstract function random() : Raw;
+
+    public abstract function interval($offset, $unit, $amount) : Raw;
 }
 
