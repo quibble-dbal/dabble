@@ -10,13 +10,6 @@
 
 namespace Quibble\Dabble;
 
-use Quibble\Dabble\Where;
-use Quibble\Dabble\Options;
-use Quibble\Dabble\Select;
-use Quibble\Dabble\Insert;
-use Quibble\Dabble\Update;
-use Quibble\Dabble\Delete;
-use Quibble\Dabble\Raw;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -171,7 +164,7 @@ abstract class Adapter extends PDO
      * }}}
      */
 
-    public abstract function now() : Now;
+    public abstract function now() : Raw;
 
     public abstract function random() : Raw;
 
