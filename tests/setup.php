@@ -7,10 +7,9 @@ use Quibble\Dabble;
 global $adapter;
 
 $adapter = new class('sqlite::memory:') extends Dabble\Adapter {
-    public function now() : Dabble\Now
+    public function now() : Dabble\Raw
     {
-        return new class('CURRENT_TIMESTAMP') extends Dabble\Now {
-        };
+        return new Dabble\Raw('CURRENT_TIMESTAMP');
     }
 
     public function random() : Dabble\Raw
