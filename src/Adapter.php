@@ -5,7 +5,7 @@
  *
  * @package Quibble\Dabble
  * @author Marijn Ophorst <marijn@monomelodies.nl>
- * @copyright MonoMelodies 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016
+ * @copyright MonoMelodies 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2018
  */
 
 namespace Quibble\Dabble;
@@ -20,24 +20,24 @@ abstract class Adapter extends PDO
     private $connectionSettings = [];
     private $connected = false;
 
-    public function __construct(
-        $dsn,
-        $username = null,
-        $password = null,
-        array $options = []
-    ) {
-        $this->connectionSettings = compact(
-            'dsn',
-            'username',
-            'password',
-            'options'
-        );
+    /**
+     * @param string $dsn
+     * @param string $username = null
+     * @param string $password = null
+     * @param array $options
+     * @return void
+     */
+    public function __construct(string $dsn, string $username = null, string $password = null, array $options = [])
+    {
+        $this->connectionSettings = compact('dsn', 'username', 'password', 'options');
     }
 
-    public function id()
+    /**
+     * @return string
+     */
+    public function id() : string
     {
-        return $this->connectionSettings['dsn']
-            .$this->connectionSettings['username'];
+        return $this->connectionSettings['dsn'].$this->connectionSettings['username'];
     }
 
     /**
@@ -45,10 +45,11 @@ abstract class Adapter extends PDO
      * This allows you to define as many databases as you want in a central file
      * without necessarily worrying about overhead (e.g. lots of related sites).
      *
+     * @return void
      * @throws Quibble\Dabble\ConnectionFailedException if the database is
      *  unavailable.
      */
-    public function connect()
+    public function connect() : void
     {
         if ($this->connected) {
             return;
@@ -62,19 +63,19 @@ abstract class Adapter extends PDO
         }
     }
 
-    public function reconnect()
+    /**
+     * @return void
+     */
+    public function reconnect() : void
     {
         $this->connected = false;
         $this->connect();
     }
 
     /**
-     * Expose all PDO's original methods, optionally with additional
-     * Quibble\Dabble-specific functionality.
-     *
-     * {{{
+     * @return bool
      */
-    public function beginTransaction()
+    public function beginTransaction() : bool
     {
         $this->connect();
         if (!$this->transactionLevel++) {
@@ -82,7 +83,10 @@ abstract class Adapter extends PDO
         }
     }
 
-    public function commit()
+    /**
+     * @return bool
+     */
+    public function commit() : bool
     {
         $this->connect();
         if ($this->transactionLevel-- == 1) {
@@ -90,55 +94,84 @@ abstract class Adapter extends PDO
         }
     }
 
-    public function errorCode()
+    /**
+     * @return string
+     */
+    public function errorCode() : string
     {
         $this->connect();
         return parent::errorCode();
     }
 
-    public function errorInfo()
+    /**
+     * @return array
+     */
+    public function errorInfo() : array
     {
         $this->connect();
         return parent::errorInfo();
     }
 
-    public function exec($statement)
+    /**
+     * @return int
+     */
+    public function exec($statement) : int
     {
         $this->connect();
         return parent::exec($statement);
     }
 
-    public function getAttribute($attribute)
+    /**
+     * @return int
+     */
+    public function getAttribute($attribute) : int
     {
         $this->connect();
         return parent::getAttribute($attribute);
     }
 
-    public function inTransaction()
+    /**
+     * @return bool
+     */
+    public function inTransaction() : bool
     {
         return $this->transactionLevel;
     }
 
-    public function lastInsertId($name = null)
+    /**
+     * @return string
+     */
+    public function lastInsertId($name = null) : string
     {
         $this->connect();
         return parent::lastInsertId($name);
     }
 
-    public function prepare($statement, $driver_options = null)
+    /**
+     * @return PDOStatement
+     */
+    public function prepare($statement, $driver_options = null) : PDOStatement
     {
         $this->connect();
         $driver_options = $driver_options ?: [];
         return parent::prepare($statement, $driver_options);
     }
 
-    public function query($statement)
+    /**
+     * @return PDOStatement
+     */
+    public function query($statement) : PDOStatement
     {
         $this->connect();
         return parent::query($statement);
     }
 
-    public function quote($string, $parameter_type = PDO::PARAM_STR)
+    /**
+     * @param mixed $string
+     * @param int $parameter_type
+     * @return string
+     */
+    public function quote($string, $parameter_type = PDO::PARAM_STR) : string
     {
         $this->connect();
         if (is_object($string) && $string instanceof Raw) {
@@ -147,7 +180,10 @@ abstract class Adapter extends PDO
         return parent::quote($string, $parameter_type);
     }
 
-    public function rollback()
+    /**
+     * @return bool
+     */
+    public function rollback() : bool
     {
         $this->connect();
         if ($this->transactionLevel-- == 1) {
@@ -155,7 +191,10 @@ abstract class Adapter extends PDO
         }
     }
 
-    public function setAttribute($attribute, $value)
+    /**
+     * @return bool
+     */
+    public function setAttribute($attribute, $value) : bool
     {
         $this->connect();
         return parent::setAttribute($attribute, $value);
@@ -164,10 +203,21 @@ abstract class Adapter extends PDO
      * }}}
      */
 
+    /**
+     * @return Quibble\Dabble\Raw
+     */
     public abstract function now() : Raw;
 
+    /**
+     * @return Quibble\Dabble\Raw
+     */
     public abstract function random() : Raw;
 
-    public abstract function interval($unit, $amount) : Raw;
+    /**
+     * @param string $unit
+     * @param int $amount
+     * @return Quibble\Dabble\Raw
+     */
+    public abstract function interval(string $unit, int $amount) : Raw;
 }
 
