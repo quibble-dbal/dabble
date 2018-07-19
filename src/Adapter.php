@@ -204,20 +204,20 @@ abstract class Adapter extends PDO
      */
 
     /**
-     * @return Quibble\Dabble\Raw
+     * @return string
      */
-    public abstract function now() : Raw;
+    public abstract function now() : string;
 
     /**
-     * @return Quibble\Dabble\Raw
+     * @return string
      */
-    public abstract function random() : Raw;
+    public abstract function random() : string;
 
     /**
      * @param string $unit
      * @param int $amount
-     * @return Quibble\Dabble\Raw
+     * @return string
      */
-    public abstract function interval(string $unit, int $amount) : Raw;
+    public abstract function interval(string $unit, int $amount) : string;
 }
 
