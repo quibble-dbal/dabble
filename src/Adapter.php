@@ -148,13 +148,14 @@ abstract class Adapter extends PDO
     }
 
     /**
-     * @return PDOStatement
+     * @return PDOStatement|null
      */
-    public function prepare($statement, $driver_options = null) : PDOStatement
+    public function prepare($statement, $driver_options = null) :? PDOStatement
     {
         $this->connect();
         $driver_options = $driver_options ?: [];
-        return parent::prepare($statement, $driver_options);
+        $stmt = parent::prepare($statement, $driver_options);
+        return $stmt ? $stmt : null;
     }
 
     /**
