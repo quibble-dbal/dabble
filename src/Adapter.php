@@ -81,6 +81,7 @@ abstract class Adapter extends PDO
         if (!$this->transactionLevel++) {
             return parent::beginTransaction();
         }
+        return false;
     }
 
     /**
@@ -92,6 +93,7 @@ abstract class Adapter extends PDO
         if ($this->transactionLevel-- == 1) {
             return parent::commit();
         }
+        return false;
     }
 
     /**
@@ -190,6 +192,7 @@ abstract class Adapter extends PDO
         if ($this->transactionLevel-- == 1) {
             return parent::rollback();
         }
+        return false;
     }
 
     /**
