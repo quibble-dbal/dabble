@@ -78,10 +78,7 @@ abstract class Adapter extends PDO
     public function beginTransaction() : bool
     {
         $this->connect();
-        if (!$this->transactionLevel++) {
-            return parent::beginTransaction();
-        }
-        return false;
+        return parent::beginTransaction();
     }
 
     /**
@@ -90,10 +87,7 @@ abstract class Adapter extends PDO
     public function commit() : bool
     {
         $this->connect();
-        if ($this->transactionLevel-- == 1) {
-            return parent::commit();
-        }
-        return false;
+        return parent::commit();
     }
 
     /**
@@ -189,10 +183,7 @@ abstract class Adapter extends PDO
     public function rollback() : bool
     {
         $this->connect();
-        if ($this->transactionLevel-- == 1) {
-            return parent::rollback();
-        }
-        return false;
+        return parent::rollback();
     }
 
     /**
