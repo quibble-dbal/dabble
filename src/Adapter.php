@@ -157,10 +157,10 @@ abstract class Adapter extends PDO
     /**
      * @return PDOStatement
      */
-    public function query($statement) : PDOStatement
+    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs) : PDOStatement
     {
         $this->connect();
-        return parent::query($statement);
+        return parent::query($query, $fetchMode, ...$fetchModeArgs);
     }
 
     /**
