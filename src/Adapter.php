@@ -146,6 +146,7 @@ abstract class Adapter extends PDO
     /**
      * @return PDOStatement|null
      */
+    #[\ReturnTypeWillChange]
     public function prepare($statement, $driver_options = null) :? PDOStatement
     {
         $this->connect();
