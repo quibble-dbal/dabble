@@ -18,7 +18,7 @@ abstract class Adapter extends PDO
 {
     protected $transactionLevel = 0;
     private $connectionSettings = [];
-    private $connected = false;
+    private $initializeed = false;
 
     /**
      * @param string $dsn
@@ -27,7 +27,7 @@ abstract class Adapter extends PDO
      * @param array $options
      * @return void
      */
-    public function __construct(string $dsn, string $username = null, string $password = null, array $options = [])
+    public function __construct(string $dsn, ?string $username = null, ?string $password = null, array $options = [])
     {
         $this->connectionSettings = compact('dsn', 'username', 'password', 'options');
     }
@@ -41,7 +41,7 @@ abstract class Adapter extends PDO
     }
 
     /**
-     * Opens a just-in-time database connection associated with this adapter.
+     * Opens a just-in-time database initializeion associated with this adapter.
      * This allows you to define as many databases as you want in a central file
      * without necessarily worrying about overhead (e.g. lots of related sites).
      *
@@ -49,15 +49,15 @@ abstract class Adapter extends PDO
      * @throws Quibble\Dabble\ConnectionFailedException if the database is
      *  unavailable.
      */
-    public function connect() : void
+    public function initialize() : void
     {
-        if ($this->connected) {
+        if ($this->initializeed) {
             return;
         }
         try {
             extract($this->connectionSettings);
             parent::__construct($dsn, $username, $password, $options);
-            $this->connected = true;
+            $this->initializeed = true;
         } catch (PDOException $e) {
             throw new ConnectionFailedException($e->getMessage());
         }
@@ -66,10 +66,10 @@ abstract class Adapter extends PDO
     /**
      * @return void
      */
-    public function reconnect() : void
+    public function reinitialize() : void
     {
-        $this->connected = false;
-        $this->connect();
+        $this->initializeed = false;
+        $this->initialize();
     }
 
     /**
@@ -77,7 +77,7 @@ abstract class Adapter extends PDO
      */
     public function beginTransaction() : bool
     {
-        $this->connect();
+        $this->initialize();
         return parent::beginTransaction();
     }
 
@@ -86,7 +86,7 @@ abstract class Adapter extends PDO
      */
     public function commit() : bool
     {
-        $this->connect();
+        $this->initialize();
         return parent::commit();
     }
 
@@ -95,7 +95,7 @@ abstract class Adapter extends PDO
      */
     public function errorCode() : string
     {
-        $this->connect();
+        $this->initialize();
         return parent::errorCode();
     }
 
@@ -104,7 +104,7 @@ abstract class Adapter extends PDO
      */
     public function errorInfo() : array
     {
-        $this->connect();
+        $this->initialize();
         return parent::errorInfo();
     }
 
@@ -113,7 +113,7 @@ abstract class Adapter extends PDO
      */
     public function exec($statement) : int
     {
-        $this->connect();
+        $this->initialize();
         return parent::exec($statement);
     }
 
@@ -122,7 +122,7 @@ abstract class Adapter extends PDO
      */
     public function getAttribute($attribute) : int
     {
-        $this->connect();
+        $this->initialize();
         return parent::getAttribute($attribute);
     }
 
@@ -139,7 +139,7 @@ abstract class Adapter extends PDO
      */
     public function lastInsertId($name = null) : string
     {
-        $this->connect();
+        $this->initialize();
         return parent::lastInsertId($name);
     }
 
@@ -149,7 +149,7 @@ abstract class Adapter extends PDO
     #[\ReturnTypeWillChange]
     public function prepare($statement, $driver_options = null) :? PDOStatement
     {
-        $this->connect();
+        $this->initialize();
         $driver_options = $driver_options ?: [];
         $stmt = parent::prepare($statement, $driver_options);
         return $stmt ? $stmt : null;
@@ -160,7 +160,7 @@ abstract class Adapter extends PDO
      */
     public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs) : PDOStatement
     {
-        $this->connect();
+        $this->initialize();
         return parent::query($query, $fetchMode, ...$fetchModeArgs);
     }
 
@@ -171,7 +171,7 @@ abstract class Adapter extends PDO
      */
     public function quote($string, $parameter_type = PDO::PARAM_STR) : string
     {
-        $this->connect();
+        $this->initialize();
         if (is_object($string) && $string instanceof Raw) {
             return "$string";
         }
@@ -183,7 +183,7 @@ abstract class Adapter extends PDO
      */
     public function rollback() : bool
     {
-        $this->connect();
+        $this->initialize();
         return parent::rollback();
     }
 
@@ -192,7 +192,7 @@ abstract class Adapter extends PDO
      */
     public function setAttribute($attribute, $value) : bool
     {
-        $this->connect();
+        $this->initialize();
         return parent::setAttribute($attribute, $value);
     }
     /**
