@@ -169,16 +169,13 @@ abstract class Adapter extends PDO
     }
 
     /**
-     * @param mixed $string
+     * @param string $string
      * @param int $parameter_type
      * @return string
      */
-    public function quote(mixed $string, $parameter_type = PDO::PARAM_STR) : string|false
+    public function quote(string $string, $parameter_type = PDO::PARAM_STR) : string|false
     {
         $this->initialize();
-        if (is_object($string) && $string instanceof Raw) {
-            return "$string";
-        }
         return parent::quote($string, $parameter_type);
     }
 
