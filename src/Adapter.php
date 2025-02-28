@@ -137,7 +137,7 @@ abstract class Adapter extends PDO
     /**
      * @return string
      */
-    public function lastInsertId($name = null) : string
+    public function lastInsertId(?string $name = null) : string
     {
         $this->initialize();
         return parent::lastInsertId($name);
