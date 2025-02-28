@@ -27,7 +27,7 @@ abstract class Adapter extends PDO
      * @param array $options
      * @return void
      */
-    public function __construct(string $dsn, ?string $username = null, ?string $password = null, array $options = [])
+    public function __construct(string $dsn, ?string $username = null, ?string $password = null, ?array $options = null)
     {
         $this->connectionSettings = compact('dsn', 'username', 'password', 'options');
     }
@@ -93,7 +93,7 @@ abstract class Adapter extends PDO
     /**
      * @return string
      */
-    public function errorCode() : string
+    public function errorCode() : ?string
     {
         $this->initialize();
         return parent::errorCode();
@@ -111,16 +111,17 @@ abstract class Adapter extends PDO
     /**
      * @return int
      */
-    public function exec($statement) : int
+    public function exec(string $statement) : int|false
     {
         $this->initialize();
         return parent::exec($statement);
     }
 
     /**
-     * @return int
+     * @param int $attribute
+     * @return mixed
      */
-    public function getAttribute($attribute) : int
+    public function getAttribute(int $attribute) : mixed
     {
         $this->initialize();
         return parent::getAttribute($attribute);
@@ -131,37 +132,40 @@ abstract class Adapter extends PDO
      */
     public function inTransaction() : bool
     {
-        return $this->transactionLevel;
+        return (bool)$this->transactionLevel;
     }
 
     /**
-     * @return string
+     * @param string|null $name
+     * @return string|false
      */
-    public function lastInsertId(?string $name = null) : string
+    public function lastInsertId(?string $name = null) : string|false
     {
         $this->initialize();
         return parent::lastInsertId($name);
     }
 
     /**
-     * @return PDOStatement|null
+     * @param string $statement
+     * @param array $driver_options
+     * @return PDOStatement|false
      */
-    #[\ReturnTypeWillChange]
-    public function prepare($statement, $driver_options = null) :? PDOStatement
+    public function prepare(string $statement, array $driver_options = []) : PDOStatement|false
     {
         $this->initialize();
-        $driver_options = $driver_options ?: [];
-        $stmt = parent::prepare($statement, $driver_options);
-        return $stmt ? $stmt : null;
+        return parent::prepare($statement, $driver_options);
     }
 
     /**
-     * @return PDOStatement
+     * This method has different signatures depending on the `$fetchMode`, so
+     * we just use a spread here.
+     *
+     * @return PDOStatement|false
      */
-    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs) : PDOStatement
+    public function query(...$args) : PDOStatement|false
     {
         $this->initialize();
-        return parent::query($query, $fetchMode, ...$fetchModeArgs);
+        return parent::query(...$args);
     }
 
     /**
@@ -169,7 +173,7 @@ abstract class Adapter extends PDO
      * @param int $parameter_type
      * @return string
      */
-    public function quote($string, $parameter_type = PDO::PARAM_STR) : string
+    public function quote(mixed $string, $parameter_type = PDO::PARAM_STR) : string|false
     {
         $this->initialize();
         if (is_object($string) && $string instanceof Raw) {
@@ -188,9 +192,11 @@ abstract class Adapter extends PDO
     }
 
     /**
+     * @param int $attribute
+     * @param mixed $value
      * @return bool
      */
-    public function setAttribute($attribute, $value) : bool
+    public function setAttribute(int $attribute, mixed $value) : bool
     {
         $this->initialize();
         return parent::setAttribute($attribute, $value);
